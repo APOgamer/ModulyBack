@@ -31,9 +31,9 @@
       <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.7.3" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.2" />
     </ItemGroup>
-
     <ItemGroup>
-      <Folder Include="Shared\" />
+        <Content Include="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
-
 </Project>
