@@ -8,7 +8,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using ModulyBack.IAM.Application.Internal.OutboundServices;
+using ModulyBack.IAM.Domain.Repositories;
 using ModulyBack.IAM.Infrastructure.Hashing.BCrypt.Services;
+using ModulyBack.IAM.Infrastructure.Persistence.EFC.Repositories;
 using ModulyBack.IAM.Infrastructure.Tokens.JWT.Configuration;
 using ModulyBack.IAM.Infrastructure.Tokens.JWT.Services;
 using ModulyBack.Shared.Domain.Repositories;
@@ -109,10 +111,10 @@ builder.Services.AddCors(options =>
 });
 
 // ADD REPOSITORIES AND SERVICES
-builder.Services.AddSignalR();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 
 
