@@ -1,54 +1,47 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace ModulyBack.IAM.Domain.Model.Aggregates
 {
-    public class User(
-        string username,
-        string passwordHash,
-        string firstName,
-        string lastName,
-        string email,
-        string role = "alumno")
+    public class User
     {
-        public User() : this(String.Empty, String.Empty, String.Empty, String.Empty, String.Empty, String.Empty)
+        // Constructor sin parámetros para EF Core
+        public User()
         {
-
         }
 
-        public User(Guid id) : this()
+        // Constructor con parámetros
+        public User(string username, string passwordHash, string firstName, string lastName, string email, string role = "user")
         {
-            Id = id;
+            Username = username;
+            PasswordHash = passwordHash;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            Role = role;
         }
 
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } // EF Core usa esta propiedad para la clave primaria
 
+        public string Username { get; set; } = string.Empty;
 
+        [JsonIgnore]
+        public string PasswordHash { get; set; } = string.Empty;
 
-        public string Username { get; set; } = username;
+        public string FirstName { get; set; } = string.Empty;
 
-        [JsonIgnore] public string PasswordHash { get; set; } = passwordHash;
+        public string LastName { get; set; } = string.Empty;
 
-        public string FirstName { get; set; } = firstName;
+        public string Email { get; set; } = string.Empty;
 
-        public string LastName { get; set; } = lastName;
+        public string Role { get; set; } = "user";
 
-        public string Email { get; set; } = email;
-
-        public string Role { get; set; } = role;
-
-        // Propiedades de navegación para la relación con Rooms y Questions
-
-
-
-
-
-
-
+        // Métodos de actualización
         public User UpdateUsername(string username)
         {
-            Username = username.Length <= 20
-                ? username
-                : throw new ArgumentException("Username must be 20 characters or less.");
+            if (username.Length > 20)
+                throw new ArgumentException("Username must be 20 characters or less.");
+            Username = username;
             return this;
         }
 
@@ -66,21 +59,25 @@ namespace ModulyBack.IAM.Domain.Model.Aggregates
 
         public User UpdateLastName(string lastName)
         {
-            LastName = lastName.Length <= 50
-                ? lastName
-                : throw new ArgumentException("Last name must be 50 characters or less.");
+            if (lastName.Length > 50)
+                throw new ArgumentException("Last name must be 50 characters or less.");
+            LastName = lastName;
             return this;
         }
 
         public User UpdateEmail(string email)
         {
-            Email = email.Length <= 100 ? email : throw new ArgumentException("Email must be 100 characters or less.");
+            if (email.Length > 100)
+                throw new ArgumentException("Email must be 100 characters or less.");
+            Email = email;
             return this;
         }
 
         public User UpdateRole(string role)
         {
-            Role = role.Length <= 20 ? role : throw new ArgumentException("Role must be 20 characters or less.");
+            if (role.Length > 20)
+                throw new ArgumentException("Role must be 20 characters or less.");
+            Role = role;
             return this;
         }
     }

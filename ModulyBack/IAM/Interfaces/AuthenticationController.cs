@@ -3,7 +3,6 @@ using ModulyBack.IAM.Application.Internal.OutboundServices;
 using ModulyBack.IAM.Domain.Services;
 using ModulyBack.IAM.Interfaces.Resources;
 using ModulyBack.IAM.Interfaces.Transform;
-
 namespace ModulyBack.IAM.Interfaces;
 
 public class AuthenticationController : ControllerBase

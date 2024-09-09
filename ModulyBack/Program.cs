@@ -7,8 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using ModulyBack.IAM.Application.Internal.CommandServices;
 using ModulyBack.IAM.Application.Internal.OutboundServices;
+using ModulyBack.IAM.Application.Internal.QueryServices;
 using ModulyBack.IAM.Domain.Repositories;
+using ModulyBack.IAM.Domain.Services;
 using ModulyBack.IAM.Infrastructure.Hashing.BCrypt.Services;
 using ModulyBack.IAM.Infrastructure.Persistence.EFC.Repositories;
 using ModulyBack.IAM.Infrastructure.Tokens.JWT.Configuration;
@@ -121,6 +124,13 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IHashingService, HashingService>();
+
+builder.Services.AddScoped<IUserCommandService, UserCommandService>();
+
+
+builder.Services.AddScoped<IUserQueryServices, UserQueryService>();
+
+
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
 
 
