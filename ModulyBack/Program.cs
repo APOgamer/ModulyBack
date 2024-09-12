@@ -16,6 +16,11 @@ using ModulyBack.IAM.Infrastructure.Hashing.BCrypt.Services;
 using ModulyBack.IAM.Infrastructure.Persistence.EFC.Repositories;
 using ModulyBack.IAM.Infrastructure.Tokens.JWT.Configuration;
 using ModulyBack.IAM.Infrastructure.Tokens.JWT.Services;
+using ModulyBack.Moduly.Application.Internal.CommandServices;
+using ModulyBack.Moduly.Application.Internal.QueryServices;
+using ModulyBack.Moduly.Domain.Repositories;
+using ModulyBack.Moduly.Domain.Services;
+using ModulyBack.Moduly.Infraestructure.Persistence.EFC.Repositories;
 using ModulyBack.Shared.Domain.Repositories;
 using ModulyBack.Shared.Infraestructure.Interfaces.ASP.Configuration;
 using ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration;
@@ -118,6 +123,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
 
 
 
@@ -126,9 +134,15 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IHashingService, HashingService>();
 
 builder.Services.AddScoped<IUserCommandService, UserCommandService>();
+builder.Services.AddScoped<ICompanyCommandService, CompanyCommandService>();
+builder.Services.AddScoped<IInvoiceCommandService, InvoiceCommandService>();
+builder.Services.AddScoped<IModuleCommandService, ModuleCommandService>();
 
 
 builder.Services.AddScoped<IUserQueryServices, UserQueryService>();
+builder.Services.AddScoped<ICompanyQueryService, CompanyQueryService>();
+builder.Services.AddScoped<IInvoiceQueryService, InvoiceQueryService>();
+builder.Services.AddScoped<IModuleQueryService, ModuleQueryService>();
 
 
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));

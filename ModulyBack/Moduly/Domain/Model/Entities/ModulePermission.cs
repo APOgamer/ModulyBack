@@ -1,16 +1,29 @@
-﻿using ModulyBack.Moduly.Domain.Model.Entities;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace ModulyBack.Moduly.Domain.Model.Aggregates;
+namespace ModulyBack.Moduly.Domain.Model.Entities;
 
 public class ModulePermission
 {
-    public Guid Id { get; set; } // EF Core usa esta propiedad para la clave primaria
+    [Key]
+    public Guid Id { get; set; }
+
+    [Required]
     public Guid ModuleId { get; set; }
+        
+    [Required]
     public Module Module { get; set; } = null!;
+
+    [Required]
     public Guid UserCompanyId { get; set; }
+        
+    [Required]
     public UserCompany UserCompany { get; set; } = null!;
+
     public bool CanCreate { get; set; }
+
     public bool CanView { get; set; } = true;
+
     public bool CanEdit { get; set; }
+
     public bool CanDelete { get; set; }
 }

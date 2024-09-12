@@ -8,6 +8,4 @@ public record SignUpResource(
     int Age,                
     string Dni,             
     string PhoneNumber,     
-    string Email,           
-    string Role
-);
+    string Email);
