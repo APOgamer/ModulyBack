@@ -44,8 +44,10 @@ public class CompanyController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateCompany([FromBody] CreateCompanyCommand command)
     {
-        await _companyCommandService.Handle(command);
-        return CreatedAtAction(nameof(GetCompanyById), null);
+        var createdCompanyId = await _companyCommandService.Handle(command);
+    
+        // El ID del nuevo recurso creado se pasa a la acción GetCompanyById
+        return CreatedAtAction(nameof(GetCompanyById), new { id = createdCompanyId }, command);
     }
 
     [HttpPut("{id}")]
@@ -54,7 +56,7 @@ public class CompanyController : ControllerBase
         if (id != command.Id)
             return BadRequest("ID mismatch");
         
-        await _companyCommandService.Handle(command);
-        return NoContent();
+        var updatedCompany = await _companyCommandService.Handle(command);
+        return Ok(updatedCompany);
     }
 }

@@ -19,7 +19,7 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             _unitOfWork = unitOfWork;
         }
 
-        public async Task Handle(CreateCompanyCommand command)
+        public async Task<Guid> Handle(CreateCompanyCommand command)
         {
             var company = new Company
             {
@@ -35,9 +35,12 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
 
             await _companyRepository.AddAsync(company);
             await _unitOfWork.CompleteAsync();
+
+            return company.Id; // Devuelve el Id del nuevo recurso
         }
 
-        public async Task Handle(UpdateCompanyCommand command)
+
+        public async Task<Company> Handle(UpdateCompanyCommand command)
         {
             var existingCompany = await _companyRepository.FindByIdAsync(command.Id);
             if (existingCompany == null)
@@ -53,6 +56,7 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
 
             await _companyRepository.UpdateAsync(existingCompany);
             await _unitOfWork.CompleteAsync();
+            return existingCompany;
         }
     }
 }
