@@ -9,6 +9,7 @@ public interface IBaseRepository<TEntity>
     Task UpdateAsync(TEntity entity);
     Task AddSync(TEntity entity);
 
+    Task DeleteAsync(Guid id);
 
     void Update(TEntity entity);
 

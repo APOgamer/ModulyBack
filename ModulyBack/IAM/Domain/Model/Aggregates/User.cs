@@ -11,30 +11,35 @@ namespace ModulyBack.IAM.Domain.Model.Aggregates
         }
 
         // Constructor con parámetros
-        public User(string username, string passwordHash, string firstName, string lastName, string email, string role = "user")
+        public User(string username, string fullName, int age, string dni, string phoneNumber, string email, string passwordHash)
         {
             Username = username;
-            PasswordHash = passwordHash;
-            FirstName = firstName;
-            LastName = lastName;
+            FullName = fullName;
+            Age = age;
+            Dni = dni;
+            PhoneNumber = phoneNumber;
             Email = email;
-            Role = role;
+            PasswordHash = passwordHash;
         }
 
         public Guid Id { get; set; } // EF Core usa esta propiedad para la clave primaria
 
         public string Username { get; set; } = string.Empty;
 
+        public string FullName { get; set; } = string.Empty;
+
+        public int Age { get; set; }
+
+        public string Dni { get; set; } = string.Empty;
+
+        public string PhoneNumber { get; set; } = string.Empty;
+
         [JsonIgnore]
         public string PasswordHash { get; set; } = string.Empty;
 
-        public string FirstName { get; set; } = string.Empty;
-
-        public string LastName { get; set; } = string.Empty;
-
         public string Email { get; set; } = string.Empty;
 
-        public string Role { get; set; } = "user";
+        public DateTime CreationDate { get; set; } = DateTime.UtcNow;
 
         // Métodos de actualización
         public User UpdateUsername(string username)
@@ -45,39 +50,41 @@ namespace ModulyBack.IAM.Domain.Model.Aggregates
             return this;
         }
 
+        public User UpdateFullName(string fullName)
+        {
+            FullName = fullName;
+            return this;
+        }
+
+        public User UpdateAge(int age)
+        {
+            Age = age;
+            return this;
+        }
+
+        public User UpdateDni(string dni)
+        {
+            Dni = dni;
+            return this;
+        }
+
+        public User UpdatePhoneNumber(string phoneNumber)
+        {
+            PhoneNumber = phoneNumber;
+            return this;
+        }
+
         public User UpdatePasswordHash(string passwordHash)
         {
             PasswordHash = passwordHash;
             return this;
         }
 
-        public User UpdateFirstName(string firstName)
-        {
-            FirstName = firstName;
-            return this;
-        }
-
-        public User UpdateLastName(string lastName)
-        {
-            if (lastName.Length > 50)
-                throw new ArgumentException("Last name must be 50 characters or less.");
-            LastName = lastName;
-            return this;
-        }
-
         public User UpdateEmail(string email)
         {
-            if (email.Length > 100)
-                throw new ArgumentException("Email must be 100 characters or less.");
+            if (email.Length > 255)
+                throw new ArgumentException("Email must be 255 characters or less.");
             Email = email;
-            return this;
-        }
-
-        public User UpdateRole(string role)
-        {
-            if (role.Length > 20)
-                throw new ArgumentException("Role must be 20 characters or less.");
-            Role = role;
             return this;
         }
     }
