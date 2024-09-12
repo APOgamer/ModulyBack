@@ -13,3 +13,4 @@ public record UpdateInvoiceCommand(
     decimal TotalPayment,
     string Status
 );
+
