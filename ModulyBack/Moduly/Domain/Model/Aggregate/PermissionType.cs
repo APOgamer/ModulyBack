@@ -1,18 +1,23 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using ModulyBack.Moduly.Domain.Model.Entities;
+using ModulyBack.Moduly.Domain.Model.ValueObjects;
 
-namespace ModulyBack.Moduly.Domain.Model.Aggregate;
-
-public class PermissionType
+namespace ModulyBack.Moduly.Domain.Model.Aggregate
 {
-    [Key]
-    public Guid Id { get; set; }
+    public class PermissionType
+    {
+        [Key]
+        public Guid Id { get; set; }
 
-    [Required]
-    public string Name { get; set; } = string.Empty;
+        [Required]
+        public string Name { get; set; } = string.Empty;
 
-    public string? Description { get; set; }
-
-    public Guid CompanyId { get; set; }
-    public Company Company { get; set; } = null!;
+        public string? Description { get; set; }
+        [Required]
+        public Guid CompanyId { get; set; }
+        public Company Company { get; set; } = null!;
+        
+        [Required]
+        public List<AllowedActionEnum> AllowedActions { get; set; } = new List<AllowedActionEnum>();
+    }
 }

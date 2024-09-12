@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using ModulyBack.IAM.Domain.Model.Aggregates;
 using ModulyBack.Moduly.Domain.Model.Aggregate;
 using ModulyBack.Moduly.Domain.Model.Entities;
+using ModulyBack.Moduly.Domain.Model.ValueObjects;
 
 namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
 {
@@ -101,7 +102,14 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
                 .HasOne(uc => uc.User)
                 .WithMany()
                 .HasForeignKey(uc => uc.UserId);
-
+            builder.Entity<PermissionType>()
+                .Property(pt => pt.AllowedActions)
+                .HasConversion(
+                    v => string.Join(",", v),    // Serializa la lista de enums a una cadena de texto
+                    v => v.Split(",", StringSplitOptions.RemoveEmptyEntries)
+                        .Select(e => Enum.Parse<AllowedActionEnum>(e))
+                        .ToList()              // Convierte la cadena de vuelta a la lista de enums
+                );
             builder.Entity<UserCompany>()
                 .HasOne(uc => uc.Company)
                 .WithMany(c => c.UserCompanies)
