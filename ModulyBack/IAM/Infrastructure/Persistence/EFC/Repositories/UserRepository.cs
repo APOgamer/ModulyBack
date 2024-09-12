@@ -20,6 +20,10 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         return Context.Set<User>().Any(user => user.Username.Equals(username));
     }
 
+    public async Task<bool> ExistsByUsernameAsync(string username)
+    {
+        return await Context.Set<User>().AnyAsync(user => user.Username.Equals(username));
+    }
 
 
     public async Task<IEnumerable<User>> GetAllAsync()

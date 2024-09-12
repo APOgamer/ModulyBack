@@ -1,26 +1,27 @@
-﻿
-
-using ModulyBack.IAM.Application.Internal.OutboundServices;
+﻿using ModulyBack.IAM.Application.Internal.OutboundServices;
 using ModulyBack.IAM.Domain.Model.Aggregates;
 using ModulyBack.IAM.Domain.Model.Commands;
 using ModulyBack.IAM.Domain.Repositories;
 using ModulyBack.IAM.Domain.Services;
 using ModulyBack.Shared.Domain.Repositories;
-namespace ModulyBack.IAM.Application.Internal.CommandServices;
+using System;
+using System.Threading.Tasks;
 
-public class UserCommandService : IUserCommandService
+namespace ModulyBack.IAM.Application.Internal.CommandServices
+{
+    public class UserCommandService : IUserCommandService
     {
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITokenService _tokenService;
-        private readonly IHashingService _hashingService; 
+        private readonly IHashingService _hashingService;
 
         public UserCommandService(IUserRepository userRepository, IUnitOfWork unitOfWork, ITokenService tokenService, IHashingService hashingService)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _tokenService = tokenService;
-            _hashingService = hashingService; 
+            _hashingService = hashingService;
         }
 
         public async Task<(User user, string token)> Handle(SignInCommand command)
@@ -43,15 +44,25 @@ public class UserCommandService : IUserCommandService
         public async Task Handle(SignUpCommand command)
         {
             command.Validate(); // Validar los datos del comando SignUpCommand
-            if (_userRepository.ExistsByUsername(command.Username))
+            if (await _userRepository.ExistsByUsernameAsync(command.Username))
                 throw new Exception($"Username {command.Username} is already taken");
 
-            var hashedPassword = _hashingService.HashPassword(command.Password); 
-            var newUser = new User(command.Username, hashedPassword, command.Name, command.LastName, command.Correo, command.Role);
-            
+            var hashedPassword = _hashingService.HashPassword(command.Password);
+
+            // Utiliza FullName para la creación del usuario
+            var newUser = new User(
+                command.Username,
+                command.FullName, 
+                command.Age,
+                command.Dni,
+                command.PhoneNumber,
+                command.Email,
+                hashedPassword
+            );
+
             try
             {
-                await _userRepository.AddSync(newUser); 
+                await _userRepository.AddAsync(newUser);
                 await _unitOfWork.CompleteAsync();
             }
             catch (Exception e)
@@ -61,8 +72,6 @@ public class UserCommandService : IUserCommandService
             }
         }
 
-      
-
         public async Task UpdateUser(User user)
         {
             var existingUser = await _userRepository.FindByUsernameAsync(user.Username);
@@ -71,15 +80,15 @@ public class UserCommandService : IUserCommandService
                 throw new Exception("User not found");
             }
 
-            existingUser.Username = user.Username;
-            existingUser.FirstName = user.FirstName;
-            existingUser.LastName = user.LastName;
-            existingUser.Email = user.Email;
-            existingUser.Role = user.Role;
-            // Actualiza otros campos
+            // Actualiza los campos en el usuario existente
+            existingUser.UpdateUsername(user.Username);
+            existingUser.UpdateFullName(user.FullName);
+            existingUser.UpdateAge(user.Age);
+            existingUser.UpdateDni(user.Dni);
+            existingUser.UpdatePhoneNumber(user.PhoneNumber);
+            existingUser.UpdateEmail(user.Email);
 
             await _userRepository.UpdateAsync(existingUser);
         }
-        
-      
     }
+}
