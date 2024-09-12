@@ -41,7 +41,14 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
     {
         Context.Set<TEntity>().Remove(entity);
     }
-    
+    public async Task DeleteAsync(Guid id)
+    {
+        var entity = await FindByIdAsync(id);
+        if (entity == null) return;
+
+        Context.Set<TEntity>().Remove(entity);
+        await Context.SaveChangesAsync();
+    }
     public async Task<IEnumerable<TEntity>> ListAsync()
     {
         return await Context.Set<TEntity>().ToListAsync();

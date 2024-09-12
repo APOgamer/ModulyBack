@@ -17,7 +17,7 @@ public class InvoiceCommandService : IInvoiceCommandService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task Handle(CreateInvoiceCommand command)
+    public async Task<Invoice> Handle(CreateInvoiceCommand command)
     {
         var invoice = new Invoice
         {
@@ -35,6 +35,7 @@ public class InvoiceCommandService : IInvoiceCommandService
 
         await _invoiceRepository.AddAsync(invoice);
         await _unitOfWork.CompleteAsync();
+        return invoice;
     }
 
     public async Task Handle(UpdateInvoiceCommand command)
@@ -56,5 +57,26 @@ public class InvoiceCommandService : IInvoiceCommandService
 
         await _invoiceRepository.UpdateAsync(existingInvoice);
         await _unitOfWork.CompleteAsync();
+    }
+    public async Task Handle(DeleteInvoiceCommand command)
+    {
+        var invoice = await _invoiceRepository.FindByIdAsync(command.InvoiceId);
+        if (invoice == null)
+            throw new Exception("Invoice not found");
+
+        await _invoiceRepository.DeleteAsync(invoice.Id);
+        await _unitOfWork.CompleteAsync();
+    }
+
+    public async Task<Invoice> Handle(UpdateInvoiceStatusCommand command)
+    {
+        var invoice = await _invoiceRepository.FindByIdAsync(command.InvoiceId);
+        if (invoice == null)
+            throw new Exception("Invoice not found");
+
+        invoice.Status = command.Status;
+        await _invoiceRepository.UpdateAsync(invoice);
+        await _unitOfWork.CompleteAsync();
+        return invoice;
     }
 }

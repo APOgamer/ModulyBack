@@ -7,27 +7,22 @@ namespace ModulyBack.Moduly.Interfaces.REST.Transform;
 
 public static class UpdateInvoiceCommandFromResourceAssembler
 {
-    public static async Task<UpdateInvoiceCommand> ToCommandFromResourceAsync(
+    public static UpdateInvoiceCommand ToCommandFromResource(
         Guid invoiceId,
         UpdateInvoiceResource resource,
-        IInvoiceQueryService invoiceQueryService)
+        Guid moduleId,           // Se asume que este valor es proporcionado externamente
+        Guid? issuerId,         // Se asume que este valor es proporcionado externamente
+        DateTime issueDate)     // Se asume que este valor es proporcionado externamente
     {
-        // Obtener la factura actual desde el servicio de consulta
-        var invoice = await invoiceQueryService.Handle(new GetInvoiceByIdQuery(invoiceId));
-        if (invoice == null)
-        {
-            throw new ArgumentException("Invoice not found", nameof(invoiceId));
-        }
-
         // Calcular el TotalPayment
         var totalPayment = resource.Quantity * resource.UnitPrice;
 
         return new UpdateInvoiceCommand(
             invoiceId,
             resource.Code,
-            invoice.ModuleId,       // Tomar el valor existente
-            invoice.IssuerId,       // Tomar el valor existente
-            invoice.IssueDate,      // Tomar el valor existente
+            moduleId,
+            issuerId,
+            issueDate,
             resource.DueDate,
             resource.Description,
             resource.Quantity,

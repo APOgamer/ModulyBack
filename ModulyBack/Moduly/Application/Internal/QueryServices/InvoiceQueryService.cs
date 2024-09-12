@@ -23,5 +23,9 @@ namespace ModulyBack.Moduly.Application.Internal.QueryServices
         {
             return await _invoiceRepository.ListAsync();
         }
+        public async Task<IEnumerable<Invoice>> Handle(GetInvoicesByIssuerIdQuery query)
+        {
+            return await _invoiceRepository.FindByIssuerIdAsync(query.IssuerId);
+        }
     }
 }

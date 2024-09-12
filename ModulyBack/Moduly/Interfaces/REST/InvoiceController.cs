@@ -25,8 +25,13 @@ public class InvoiceController : ControllerBase
     public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceResource createInvoiceResource)
     {
         var createInvoiceCommand = CreateInvoiceCommandFromResourceAssembler.ToCommandFromResource(createInvoiceResource);
+
+        // Ejecutar el comando de creación
         var invoice = await _invoiceCommandService.Handle(createInvoiceCommand);
+
+        // Obtener la factura recién creada para devolver la respuesta
         if (invoice is null) return BadRequest();
+
         var resource = InvoiceResourceFromEntityAssembler.ToResourceFromEntity(invoice);
         return CreatedAtAction(nameof(GetInvoiceById), new { invoiceId = resource.Id }, resource);
     }
@@ -61,19 +66,37 @@ public class InvoiceController : ControllerBase
     [HttpPut("{invoiceId:guid}")]
     public async Task<IActionResult> UpdateInvoice([FromRoute] Guid invoiceId, [FromBody] UpdateInvoiceResource updateInvoiceResource)
     {
-        var updateInvoiceCommand = UpdateInvoiceCommandFromResourceAssembler.ToCommandFromResource(invoiceId, updateInvoiceResource);
-        var invoice = await _invoiceCommandService.Handle(updateInvoiceCommand);
+        // Obtener la factura actual para obtener los valores adicionales necesarios
+        var invoice = await _invoiceQueryService.Handle(new GetInvoiceByIdQuery(invoiceId));
         if (invoice is null) return NotFound();
-        var resource = InvoiceResourceFromEntityAssembler.ToResourceFromEntity(invoice);
+
+        // Llamar al ensamblador con los valores necesarios
+        var updateInvoiceCommand = UpdateInvoiceCommandFromResourceAssembler.ToCommandFromResource(
+            invoiceId,
+            updateInvoiceResource,
+            invoice.ModuleId,
+            invoice.IssuerId,
+            invoice.IssueDate
+        );
+
+        // Ejecutar el comando de actualización
+        await _invoiceCommandService.Handle(updateInvoiceCommand);
+
+        // Opcional: Obtener la factura actualizada para devolver la respuesta
+        var updatedInvoice = await _invoiceQueryService.Handle(new GetInvoiceByIdQuery(invoiceId));
+        if (updatedInvoice is null) return NotFound();
+
+        var resource = InvoiceResourceFromEntityAssembler.ToResourceFromEntity(updatedInvoice);
         return Ok(resource);
     }
+
+
 
     [HttpDelete("{invoiceId:guid}")]
     public async Task<IActionResult> DeleteInvoice([FromRoute] Guid invoiceId)
     {
         var deleteInvoiceCommand = new DeleteInvoiceCommand(invoiceId);
-        var result = await _invoiceCommandService.Handle(deleteInvoiceCommand);
-        if (!result) return NotFound();
+        await _invoiceCommandService.Handle(deleteInvoiceCommand); // Eliminar el `var result`
         return NoContent();
     }
 
@@ -86,4 +109,5 @@ public class InvoiceController : ControllerBase
         var resource = InvoiceResourceFromEntityAssembler.ToResourceFromEntity(invoice);
         return Ok(resource);
     }
+
 }
