@@ -36,4 +36,7 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Moduly\Domain\Model\ValueObjects\" />
+    </ItemGroup>
 </Project>
