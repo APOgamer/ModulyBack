@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace ModulyBack.IAM.Domain.Model.Aggregates
 {
@@ -22,21 +23,29 @@ namespace ModulyBack.IAM.Domain.Model.Aggregates
             PasswordHash = passwordHash;
         }
 
+        [Key] // Aquí se usa el atributo [Key] para marcar la propiedad como clave primaria
         public Guid Id { get; set; } // EF Core usa esta propiedad para la clave primaria
 
+        [Required]
         public string Username { get; set; } = string.Empty;
 
+        [Required]
         public string FullName { get; set; } = string.Empty;
 
         public int Age { get; set; }
 
+        [Required]
         public string Dni { get; set; } = string.Empty;
 
+        [Required]
         public string PhoneNumber { get; set; } = string.Empty;
 
         [JsonIgnore]
+        [Required]
         public string PasswordHash { get; set; } = string.Empty;
 
+        [Required]
+        [EmailAddress] // Opcional: Valida el formato del email
         public string Email { get; set; } = string.Empty;
 
         public DateTime CreationDate { get; set; } = DateTime.UtcNow;

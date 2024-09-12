@@ -43,7 +43,6 @@ namespace ModulyBack.IAM.Application.Internal.CommandServices
 
         public async Task Handle(SignUpCommand command)
         {
-            command.Validate(); // Validar los datos del comando SignUpCommand
             if (await _userRepository.ExistsByUsernameAsync(command.Username))
                 throw new Exception($"Username {command.Username} is already taken");
 

@@ -7,17 +7,16 @@ namespace ModulyBack.IAM.Interfaces.Transform
     {
         public static SignUpCommand ToCommandFromResource(SignUpResource resource)
         {
-            // Supongo que `SignUpResource` tiene propiedades `FullName`, `Age`, `Dni`, `PhoneNumber`, y `Email`
             return new SignUpCommand(
                 resource.Username,
                 resource.Password,
-                resource.FullName, // Campo actualizado
-                resource.Age,      // Campo actualizado
-                resource.Dni,      // Campo actualizado
-                resource.PhoneNumber, // Campo actualizado
-                resource.Email,    // Campo actualizado
-                resource.Role
+                resource.FullName,
+                resource.Age,
+                resource.Dni,
+                resource.PhoneNumber,
+                resource.Email
             );
+            
         }
     }
 }
