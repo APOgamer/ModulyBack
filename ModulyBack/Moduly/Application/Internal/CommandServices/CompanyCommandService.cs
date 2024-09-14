@@ -4,6 +4,8 @@ using ModulyBack.Moduly.Domain.Repositories;
 using ModulyBack.Shared.Domain.Repositories;
 using System;
 using System.Threading.Tasks;
+using ModulyBack.Moduly.Domain.Model.Aggregate;
+using ModulyBack.Moduly.Domain.Model.ValueObjects;
 using ModulyBack.Moduly.Domain.Services;
 
 namespace ModulyBack.Moduly.Application.Internal.CommandServices
@@ -12,15 +14,28 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
     {
         private readonly ICompanyRepository _companyRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserCompanyRepository _userCompanyRepository;
+        private readonly IPermissionTypeRepository _permissionTypeRepository;
+        private readonly IUserCompanyPermissionRepository _userCompanyPermissionRepository;
 
-        public CompanyCommandService(ICompanyRepository companyRepository, IUnitOfWork unitOfWork)
+        public CompanyCommandService(
+            ICompanyRepository companyRepository, 
+            IUnitOfWork unitOfWork,
+            IUserCompanyRepository userCompanyRepository,
+            IPermissionTypeRepository permissionTypeRepository,
+            IUserCompanyPermissionRepository userCompanyPermissionRepository)
         {
             _companyRepository = companyRepository;
             _unitOfWork = unitOfWork;
+            _userCompanyRepository = userCompanyRepository;
+            _permissionTypeRepository = permissionTypeRepository;
+            _userCompanyPermissionRepository = userCompanyPermissionRepository;
         }
+
 
         public async Task<Guid> Handle(CreateCompanyCommand command)
         {
+            // Crear la nueva compañía
             var company = new Company
             {
                 Id = Guid.NewGuid(),
@@ -34,18 +49,62 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             };
 
             await _companyRepository.AddAsync(company);
+
+            // Crear el UserCompany para el creador con el rol de "CREATOR"
+            var userCompany = new UserCompany
+            {
+                Id = Guid.NewGuid(),
+                UserId = command.CreatedById,
+                CompanyId = company.Id,
+                Role = "CREATOR",
+                JoinDate = DateTime.UtcNow
+            };
+
+            await _userCompanyRepository.AddAsync(userCompany);
+
+            // Crear el PermissionType con la acción ADMIN
+            var permissionType = new PermissionType
+            {
+                Id = Guid.NewGuid(),
+                Name = "Admin Permission",
+                CompanyId = company.Id,
+                AllowedActions = new List<AllowedActionEnum> { AllowedActionEnum.ADMIN }
+            };
+
+            await _permissionTypeRepository.AddAsync(permissionType);
+
+            // Crear UserCompanyPermission para el creador con el PermissionType ADMIN
+            var userCompanyPermission = new UserCompanyPermission
+            {
+                Id = Guid.NewGuid(),
+                UserCompanyId = userCompany.Id,
+                PermissionTypeId = permissionType.Id,
+                IsGranted = true
+            };
+
+            await _userCompanyPermissionRepository.AddAsync(userCompanyPermission);
+
+            // Guardar todos los cambios
             await _unitOfWork.CompleteAsync();
 
-            return company.Id; // Devuelve el Id del nuevo recurso
+            return company.Id; // Devuelve el Id de la nueva compañía
         }
+
 
 
         public async Task<Company> Handle(UpdateCompanyCommand command)
         {
+            
             var existingCompany = await _companyRepository.FindByIdAsync(command.Id);
             if (existingCompany == null)
                 throw new Exception("Company not found");
-
+            
+            //NEW DATA CONFIG
+            if (command.CreatedById != existingCompany.CreatedById)
+                throw new Exception("Company creators not found or role admin not found");
+            
+            
+            
             existingCompany.CompanyName = command.CompanyName;
             existingCompany.LegalName = command.LegalName;
             existingCompany.Ruc = command.Ruc;
