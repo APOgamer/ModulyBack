@@ -8,5 +8,5 @@ public record UpdateCompanyCommand(
     string Address,
     string Email,
     string Password,
-    Guid? CreatedById
+    Guid CreatedById
 );

@@ -1,4 +1,5 @@
-﻿using ModulyBack.Moduly.Domain.Model.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using ModulyBack.Moduly.Domain.Model.Entities;
 using ModulyBack.Moduly.Domain.Repositories;
 using ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration;
 using ModulyBack.Shared.Infraestructure.Persistences.EFC.Repositories;
@@ -14,4 +15,10 @@ public class UserCompanyRepository : BaseRepository<UserCompany>, IUserCompanyRe
     {
         await Context.UserCompanies.AddAsync(userCompany);
     }
+    public async Task<UserCompany?> FindByUserAndCompanyAsync(Guid userId, Guid companyId)
+    {
+        return await Context.UserCompanies
+            .FirstOrDefaultAsync(uc => uc.UserId == userId && uc.CompanyId == companyId);
+    }
+
 }

@@ -5,5 +5,6 @@ namespace ModulyBack.Moduly.Domain.Repositories;
 
 public interface IUserCompanyRepository : IBaseRepository<UserCompany>
 {
-    
+    Task<UserCompany?> FindByUserAndCompanyAsync(Guid userId, Guid companyId);
+
 }

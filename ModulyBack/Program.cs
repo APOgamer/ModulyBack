@@ -126,6 +126,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
+builder.Services.AddScoped<IUserCompanyRepository, UserCompanyRepository>();
+builder.Services.AddScoped<IUserCompanyPermissionRepository, UserCompanyPermissionRepository>();
+builder.Services.AddScoped<IPermissionTypeRepository, PermissionTypeRepository>();
 
 
 

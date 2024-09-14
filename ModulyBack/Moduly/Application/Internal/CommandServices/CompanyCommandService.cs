@@ -94,28 +94,43 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
 
         public async Task<Company> Handle(UpdateCompanyCommand command)
         {
-            
+            // Buscar la compañía
             var existingCompany = await _companyRepository.FindByIdAsync(command.Id);
             if (existingCompany == null)
                 throw new Exception("Company not found");
-            
-            //NEW DATA CONFIG
+
+            // Verificar si el usuario es el creador de la compañía
             if (command.CreatedById != existingCompany.CreatedById)
-                throw new Exception("Company creators not found or role admin not found");
-            
-            
-            
+            {
+                // No es el creador, entonces verificar si tiene permisos de ADMIN
+                var userCompany = await _userCompanyRepository.FindByUserAndCompanyAsync(command.CreatedById, existingCompany.Id);
+                if (userCompany == null)
+                    throw new Exception("User not associated with this company.");
+
+                // Comprobar si tiene permisos de ADMIN
+                var userCompanyPermission = await _userCompanyPermissionRepository.FindByUserCompanyAndPermissionTypeAsync(
+                    userCompany.Id, 
+                    AllowedActionEnum.ADMIN
+                );
+
+                if (userCompanyPermission == null || !userCompanyPermission.IsGranted)
+                    throw new Exception("User does not have admin rights for this company.");
+            }
+
+            // El usuario es el creador o tiene permisos de ADMIN, por lo tanto se permite la actualización
             existingCompany.CompanyName = command.CompanyName;
             existingCompany.LegalName = command.LegalName;
             existingCompany.Ruc = command.Ruc;
             existingCompany.Address = command.Address;
             existingCompany.Email = command.Email;
             existingCompany.Password = command.Password;
-            // Actualiza otros campos según sea necesario
 
+            // Actualizar los cambios
             await _companyRepository.UpdateAsync(existingCompany);
             await _unitOfWork.CompleteAsync();
+
             return existingCompany;
         }
+
     }
 }
