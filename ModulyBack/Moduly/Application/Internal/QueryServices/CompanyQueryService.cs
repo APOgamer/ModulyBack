@@ -27,4 +27,8 @@ public class CompanyQueryService : ICompanyQueryService
     {
         return await _companyRepository.GetCompanyByModuleIdAsync(query.ModuleId);
     }
+    public async Task<Company?> GetCompanyByIdAsync(Guid companyId)
+    {
+        return await _companyRepository.FindByIdAsync(companyId);
+    }
 }

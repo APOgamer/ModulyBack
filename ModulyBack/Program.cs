@@ -140,6 +140,8 @@ builder.Services.AddScoped<IUserCommandService, UserCommandService>();
 builder.Services.AddScoped<ICompanyCommandService, CompanyCommandService>();
 builder.Services.AddScoped<IInvoiceCommandService, InvoiceCommandService>();
 builder.Services.AddScoped<IModuleCommandService, ModuleCommandService>();
+builder.Services.AddScoped<IPermissionAssignmentCommandService, PermissionAssignmentCommandService>();
+builder.Services.AddScoped<IPermissionTypeCommandService, PermissionTypeCommandService>();
 
 
 builder.Services.AddScoped<IUserQueryServices, UserQueryService>();

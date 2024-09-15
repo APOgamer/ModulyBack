@@ -6,5 +6,7 @@ namespace ModulyBack.Moduly.Domain.Repositories;
 
 public interface IPermissionTypeRepository : IBaseRepository<PermissionType>
 {
-    
+    Task AddAsync(PermissionType permissionType);
+    Task<IEnumerable<PermissionType>> GetPermissionTypesByCompanyId(Guid companyId);
+
 }
