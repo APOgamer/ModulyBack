@@ -16,24 +16,27 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices;
         public InvoiceCommandService(
             IInvoiceRepository invoiceRepository, 
             IUnitOfWork unitOfWork,
-            IUserCompanyPermissionRepository userCompanyPermissionRepository)
+            IUserCompanyPermissionRepository userCompanyPermissionRepository,
+            IUserCompanyRepository userCompanyRepository)
         {
             _invoiceRepository = invoiceRepository;
             _unitOfWork = unitOfWork;
             _userCompanyPermissionRepository = userCompanyPermissionRepository;
+            _UserCompanyRepository = userCompanyRepository;
         }
 
         // Verificar permisos antes de crear una factura en el módulo especificado
         public async Task<Invoice> Handle(CreateInvoiceCommand command)
         {
             var UserCommandId = await _UserCompanyRepository.FindUserCompanyIdByUserId(command.UserId);
-            if (UserCommandId == null)
-                throw new Exception("UserCommandId is null");
+            if (!UserCommandId.HasValue)
+                throw new Exception($"UserCompanyId not found for UserId: {command.UserId}");
+    
             var userPermission = await _userCompanyPermissionRepository
                 .FindByUserCompanyAndPermissionTypeInModuleAsync(UserCommandId.Value, command.ModuleId, AllowedActionEnum.CREATE_INVOICE);
 
             if (userPermission == null)
-                throw new Exception("User does not have permission to create invoices in this module.");
+                throw new Exception($"User does not have permission to create invoices in ModuleId: {command.ModuleId}");
 
             var invoice = new Invoice
             {
@@ -53,6 +56,7 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices;
             await _unitOfWork.CompleteAsync();
             return invoice;
         }
+
 
         // Verificar permisos antes de actualizar una factura en el módulo especificado
         public async Task Handle(UpdateInvoiceCommand command)

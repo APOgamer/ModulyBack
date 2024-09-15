@@ -24,7 +24,8 @@ public class UserCompanyRepository : BaseRepository<UserCompany>, IUserCompanyRe
     {
         var userCompany = await Context.UserCompanies
             .FirstOrDefaultAsync(uc => uc.UserId == userId);
-        return userCompany.Id;
+        return userCompany?.Id; 
     }
+
 
 }
