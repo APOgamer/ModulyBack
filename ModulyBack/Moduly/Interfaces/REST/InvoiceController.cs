@@ -14,6 +14,7 @@ public class InvoiceController : ControllerBase
 {
     private readonly IInvoiceCommandService _invoiceCommandService;
     private readonly IInvoiceQueryService _invoiceQueryService;
+    private readonly IUserCompanyQueryService _userCompanyQueryService;
 
     public InvoiceController(IInvoiceCommandService invoiceCommandService, IInvoiceQueryService invoiceQueryService)
     {
@@ -93,21 +94,42 @@ public class InvoiceController : ControllerBase
 
 
     [HttpDelete("{invoiceId:guid}")]
-    public async Task<IActionResult> DeleteInvoice([FromRoute] Guid invoiceId)
+    public async Task<IActionResult> DeleteInvoice([FromRoute] Guid invoiceId, Guid userId)
     {
-        var deleteInvoiceCommand = new DeleteInvoiceCommand(invoiceId);
-        await _invoiceCommandService.Handle(deleteInvoiceCommand); // Eliminar el `var result`
+        var findUserCompanyIdByUserIdquery = new FindUserCompanyIdByUserIdquery(userId);
+        var userCompanyId = await _userCompanyQueryService.Handle(findUserCompanyIdByUserIdquery);
+
+        if (userCompanyId == Guid.Empty) // o si has usado Guid? y es nulo
+        {
+            throw new Exception($"No UserCompany found for userId {userId}");
+        }
+
+        var deleteInvoiceCommand = new DeleteInvoiceCommand(invoiceId, userCompanyId);
+        await _invoiceCommandService.Handle(deleteInvoiceCommand); 
         return NoContent();
     }
 
     [HttpPut("{invoiceId:guid}/status")]
-    public async Task<IActionResult> UpdateInvoiceStatus([FromRoute] Guid invoiceId, [FromBody] UpdateInvoiceStatusResource updateStatusResource)
+    public async Task<IActionResult> UpdateInvoiceStatus([FromRoute] Guid invoiceId, [FromBody] UpdateInvoiceStatusResource updateStatusResource, Guid userId)
     {
-        var updateStatusCommand = new UpdateInvoiceStatusCommand(invoiceId, updateStatusResource.Status);
+        var findUserCompanyIdByUserIdquery = new FindUserCompanyIdByUserIdquery(userId);
+    
+        // Usa 'await' para esperar el resultado de la tarea
+        var userCompanyId = await _userCompanyQueryService.Handle(findUserCompanyIdByUserIdquery);
+    
+        if (userCompanyId == Guid.Empty)
+        {
+            return NotFound("UserCompany not found");
+        }
+    
+        var updateStatusCommand = new UpdateInvoiceStatusCommand(invoiceId, updateStatusResource.Status, userCompanyId);
         var invoice = await _invoiceCommandService.Handle(updateStatusCommand);
+    
         if (invoice is null) return NotFound();
+    
         var resource = InvoiceResourceFromEntityAssembler.ToResourceFromEntity(invoice);
         return Ok(resource);
     }
+
 
 }

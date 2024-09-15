@@ -21,5 +21,14 @@ public class UserCompanyPermissionRepository : BaseRepository<UserCompanyPermiss
             .Include(ucp => ucp.PermissionType)
             .FirstOrDefaultAsync(ucp => ucp.UserCompanyId == userCompanyId && ucp.PermissionType.AllowedActions.Contains(permissionType));
     }
+    public async Task<UserCompanyPermission?> FindByUserCompanyAndPermissionTypeInModuleAsync(Guid userCompanyId, Guid moduleId, AllowedActionEnum permissionType)
+    {
+        return await Context.UserCompanyPermissions
+            .Include(ucp => ucp.PermissionType)
+            .FirstOrDefaultAsync(ucp => ucp.UserCompanyId == userCompanyId 
+                                        && ucp.ModuleId == moduleId 
+                                        && ucp.PermissionType.AllowedActions.Contains(permissionType)
+                                        && ucp.IsGranted);
+    }
 
 }

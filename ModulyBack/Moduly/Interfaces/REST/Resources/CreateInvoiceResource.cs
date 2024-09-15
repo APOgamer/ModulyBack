@@ -12,4 +12,5 @@ public class CreateInvoiceResource
     public decimal UnitPrice { get; set; }
     public decimal TotalPayment => Quantity * UnitPrice;
     public string Status { get; set; }
+    public Guid UserId { get; set; }
 }

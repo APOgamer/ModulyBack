@@ -17,19 +17,23 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
         private readonly IUserCompanyRepository _userCompanyRepository;
         private readonly IPermissionTypeRepository _permissionTypeRepository;
         private readonly IUserCompanyPermissionRepository _userCompanyPermissionRepository;
+        private readonly IModuleRepository _moduleRepository;
+        
 
         public CompanyCommandService(
             ICompanyRepository companyRepository, 
             IUnitOfWork unitOfWork,
             IUserCompanyRepository userCompanyRepository,
             IPermissionTypeRepository permissionTypeRepository,
-            IUserCompanyPermissionRepository userCompanyPermissionRepository)
+            IUserCompanyPermissionRepository userCompanyPermissionRepository,
+            IModuleRepository moduleRepository)
         {
             _companyRepository = companyRepository;
             _unitOfWork = unitOfWork;
             _userCompanyRepository = userCompanyRepository;
             _permissionTypeRepository = permissionTypeRepository;
             _userCompanyPermissionRepository = userCompanyPermissionRepository;
+            _moduleRepository = moduleRepository;
         }
 
 
@@ -61,7 +65,16 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             };
 
             await _userCompanyRepository.AddAsync(userCompany);
-
+            // Crear un módulo predeterminado para la compañía
+            var defaultModule = new Module
+            {
+                Id = Guid.NewGuid(),
+                ModuleName = "Default Module",
+                ModuleType = "Inhabitant",
+                CompanyId = company.Id,
+                CreationDate = DateTime.UtcNow
+            };
+            await _moduleRepository.AddAsync(defaultModule);
             // Crear el PermissionType con la acción ADMIN
             var permissionType = new PermissionType
             {
@@ -72,14 +85,16 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             };
 
             await _permissionTypeRepository.AddAsync(permissionType);
-
+            
+            
             // Crear UserCompanyPermission para el creador con el PermissionType ADMIN
             var userCompanyPermission = new UserCompanyPermission
             {
                 Id = Guid.NewGuid(),
                 UserCompanyId = userCompany.Id,
                 PermissionTypeId = permissionType.Id,
-                IsGranted = true
+                IsGranted = true,
+                ModuleId= defaultModule.Id
             };
 
             await _userCompanyPermissionRepository.AddAsync(userCompanyPermission);

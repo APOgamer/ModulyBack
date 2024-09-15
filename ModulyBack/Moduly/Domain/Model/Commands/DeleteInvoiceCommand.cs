@@ -1,3 +1,5 @@
 ﻿namespace ModulyBack.Moduly.Domain.Model.Commands;
 
-public record DeleteInvoiceCommand(Guid InvoiceId);
+public record DeleteInvoiceCommand(Guid InvoiceId,
+    Guid UserCompanyId
+);

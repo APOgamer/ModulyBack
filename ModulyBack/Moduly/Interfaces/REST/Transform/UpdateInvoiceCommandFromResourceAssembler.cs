@@ -28,7 +28,8 @@ public static class UpdateInvoiceCommandFromResourceAssembler
             resource.Quantity,
             resource.UnitPrice,
             totalPayment,
-            resource.Status
+            resource.Status,
+            resource.UserCompanyId
         );
     }
 }

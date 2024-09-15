@@ -44,6 +44,10 @@ public class CompanyController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateCompany([FromBody] CreateCompanyCommand command)
     {
+        if (command == null)
+        {
+            return BadRequest("Invalid data.");
+        }
         var createdCompanyId = await _companyCommandService.Handle(command);
     
         // El ID del nuevo recurso creado se pasa a la acción GetCompanyById

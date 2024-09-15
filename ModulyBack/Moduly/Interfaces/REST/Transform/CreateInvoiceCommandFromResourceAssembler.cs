@@ -20,7 +20,8 @@ public static class CreateInvoiceCommandFromResourceAssembler
             resource.Quantity,
             resource.UnitPrice,
             totalPayment, // Se añade este valor para que coincidan los parámetros
-            resource.Status
-        );
+            resource.Status,
+            resource.UserId
+            );
     }
 }
