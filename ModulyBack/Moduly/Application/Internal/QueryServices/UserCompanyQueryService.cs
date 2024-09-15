@@ -21,7 +21,10 @@ public class UserCompanyQueryService : IUserCompanyQueryService
 
         return userCompanyId ?? Guid.Empty; // Retorna un Guid.Empty si es nulo FALTA MANEJAR
     }
-
+    public async Task<Guid?> FindUserCompanyIdByUserId(Guid userId)
+    {
+        return await _UserCompanyRepository.FindUserCompanyIdByUserId(userId);
+    }
 
 
 }

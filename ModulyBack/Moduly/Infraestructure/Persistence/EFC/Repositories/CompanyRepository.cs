@@ -35,4 +35,15 @@ public class CompanyRepository : BaseRepository<Company>, ICompanyRepository
     {
         return await Context.Set<Company>().AnyAsync(c => c.Id == id);
     }
+    public async Task<Company?> FindByModuleIdAsync(Guid moduleId)
+    {
+        return await Context.Set<Company>()
+            .Include(c => c.Modules)
+            .FirstOrDefaultAsync(c => c.Modules.Any(m => m.Id == moduleId));
+    }
+    public async Task<Company?> GetCompanyByModuleIdAsync(Guid moduleId)
+    {
+        return await Context.Set<Company>()
+            .FirstOrDefaultAsync(c => c.Modules.Any(m => m.Id == moduleId));
+    }
 }

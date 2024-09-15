@@ -11,31 +11,66 @@ using ModulyBack.Moduly.Interfaces.REST.Transform;
 [ApiController]
 [Route("api/v1/[controller]")]
 public class InvoiceController : ControllerBase
-{
-    private readonly IInvoiceCommandService _invoiceCommandService;
-    private readonly IInvoiceQueryService _invoiceQueryService;
-    private readonly IUserCompanyQueryService _userCompanyQueryService;
-
-    public InvoiceController(IInvoiceCommandService invoiceCommandService, IInvoiceQueryService invoiceQueryService)
     {
-        _invoiceCommandService = invoiceCommandService;
-        _invoiceQueryService = invoiceQueryService;
-    }
+        private readonly IInvoiceCommandService _invoiceCommandService;
+        private readonly IInvoiceQueryService _invoiceQueryService;
+        private readonly IUserCompanyQueryService _userCompanyQueryService;
+        private readonly ICompanyQueryService _companyQueryService;
 
-    [HttpPost]
-    public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceResource createInvoiceResource)
-    {
-        var createInvoiceCommand = CreateInvoiceCommandFromResourceAssembler.ToCommandFromResource(createInvoiceResource);
+        public InvoiceController(
+            IInvoiceCommandService invoiceCommandService, 
+            IInvoiceQueryService invoiceQueryService,
+            IUserCompanyQueryService userCompanyQueryService,
+            ICompanyQueryService companyQueryService)
+        {
+            _invoiceCommandService = invoiceCommandService;
+            _invoiceQueryService = invoiceQueryService;
+            _userCompanyQueryService = userCompanyQueryService;
+            _companyQueryService = companyQueryService;
+        }
 
-        // Ejecutar el comando de creación
-        var invoice = await _invoiceCommandService.Handle(createInvoiceCommand);
+ [HttpPost]
+        public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceResource createInvoiceResource)
+        {
+            var createInvoiceCommand = CreateInvoiceCommandFromResourceAssembler.ToCommandFromResource(createInvoiceResource);
 
-        // Obtener la factura recién creada para devolver la respuesta
-        if (invoice is null) return BadRequest();
+            try
+            {
+                // Obtener el UserCompanyId
+                var userCompanyId = await _userCompanyQueryService.FindUserCompanyIdByUserId(createInvoiceCommand.UserId);
+                if (!userCompanyId.HasValue)
+                {
+                    return Forbid("User is not associated with any company.");
+                }
 
-        var resource = InvoiceResourceFromEntityAssembler.ToResourceFromEntity(invoice);
-        return CreatedAtAction(nameof(GetInvoiceById), new { invoiceId = resource.Id }, resource);
-    }
+                // Verificar si el usuario es el creador de la compañía
+                var company = await _companyQueryService.Handle(new GetCompanyByModuleIdQuery(createInvoiceCommand.ModuleId));
+                if (company != null && company.CreatedById == createInvoiceCommand.UserId)
+                {
+                    // El usuario es el creador, tiene permiso automático
+                    var creatorInvoice = await _invoiceCommandService.Handle(createInvoiceCommand);
+                    var creatorResource = InvoiceResourceFromEntityAssembler.ToResourceFromEntity(creatorInvoice);
+                    return CreatedAtAction(nameof(GetInvoiceById), new { invoiceId = creatorResource.Id }, creatorResource);
+                }
+
+                // Si no es el creador, la verificación de permisos se hará en el InvoiceCommandService
+                var regularInvoice = await _invoiceCommandService.Handle(createInvoiceCommand);
+
+                if (regularInvoice is null) return BadRequest();
+
+                var regularResource = InvoiceResourceFromEntityAssembler.ToResourceFromEntity(regularInvoice);
+                return CreatedAtAction(nameof(GetInvoiceById), new { invoiceId = regularResource.Id }, regularResource);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(500, $"An error occurred while creating the invoice: {ex.Message}");
+            }
+        }
 
     [HttpGet("{invoiceId:guid}")]
     public async Task<IActionResult> GetInvoiceById([FromRoute] Guid invoiceId)

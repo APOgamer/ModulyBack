@@ -30,7 +30,7 @@ namespace ModulyBack.Moduly.Domain.Model.Entities
         public string Password { get; set; } = string.Empty;
 
         public DateTime CreationDate { get; set; } = DateTime.UtcNow;
-
+        [Required]
         public Guid? CreatedById { get; set; }
 
         public ICollection<UserCompany> UserCompanies { get; set; } = new List<UserCompany>();

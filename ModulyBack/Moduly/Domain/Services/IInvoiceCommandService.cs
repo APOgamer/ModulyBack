@@ -9,5 +9,6 @@ public interface IInvoiceCommandService
     Task<Invoice> Handle(CreateInvoiceCommand command);
     Task Handle(UpdateInvoiceCommand command);
     Task Handle(DeleteInvoiceCommand command); 
-    Task<Invoice> Handle(UpdateInvoiceStatusCommand command); 
+    Task<Invoice> Handle(UpdateInvoiceStatusCommand command);
+
 }

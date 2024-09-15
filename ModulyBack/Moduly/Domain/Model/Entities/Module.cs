@@ -24,10 +24,8 @@ namespace ModulyBack.Moduly.Domain.Model.Entities
         [Required]
         public DateTime CreationDate { get; set; } = DateTime.UtcNow;
 
-        public ICollection<ModulePermission> Permissions { get; set; } = new List<ModulePermission>();
         public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
         public ICollection<BeingModule> BeingModules { get; set; } = new List<BeingModule>();
-        public ICollection<ModulePermission> ModulePermissions { get; set; } = new List<ModulePermission>();
 
     }
 }

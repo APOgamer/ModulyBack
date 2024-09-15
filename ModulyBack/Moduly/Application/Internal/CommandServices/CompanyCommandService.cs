@@ -3,6 +3,7 @@ using ModulyBack.Moduly.Domain.Model.Entities;
 using ModulyBack.Moduly.Domain.Repositories;
 using ModulyBack.Shared.Domain.Repositories;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ModulyBack.Moduly.Domain.Model.Aggregate;
 using ModulyBack.Moduly.Domain.Model.ValueObjects;
@@ -18,7 +19,6 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
         private readonly IPermissionTypeRepository _permissionTypeRepository;
         private readonly IUserCompanyPermissionRepository _userCompanyPermissionRepository;
         private readonly IModuleRepository _moduleRepository;
-        
 
         public CompanyCommandService(
             ICompanyRepository companyRepository, 
@@ -35,7 +35,6 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             _userCompanyPermissionRepository = userCompanyPermissionRepository;
             _moduleRepository = moduleRepository;
         }
-
 
         public async Task<Guid> Handle(CreateCompanyCommand command)
         {
@@ -65,6 +64,7 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             };
 
             await _userCompanyRepository.AddAsync(userCompany);
+
             // Crear un módulo predeterminado para la compañía
             var defaultModule = new Module
             {
@@ -75,18 +75,25 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
                 CreationDate = DateTime.UtcNow
             };
             await _moduleRepository.AddAsync(defaultModule);
+
             // Crear el PermissionType con la acción ADMIN
             var permissionType = new PermissionType
             {
                 Id = Guid.NewGuid(),
                 Name = "Admin Permission",
                 CompanyId = company.Id,
-                AllowedActions = new List<AllowedActionEnum> { AllowedActionEnum.ADMIN }
+                PermissionTypeActions = new List<PermissionTypeAction>
+                {
+                    new PermissionTypeAction
+                    {
+                        Id = Guid.NewGuid(),
+                        AllowedAction = AllowedActionEnum.ADMIN
+                    }
+                }
             };
 
             await _permissionTypeRepository.AddAsync(permissionType);
-            
-            
+
             // Crear UserCompanyPermission para el creador con el PermissionType ADMIN
             var userCompanyPermission = new UserCompanyPermission
             {
@@ -94,7 +101,7 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
                 UserCompanyId = userCompany.Id,
                 PermissionTypeId = permissionType.Id,
                 IsGranted = true,
-                ModuleId= defaultModule.Id
+                ModuleId = defaultModule.Id
             };
 
             await _userCompanyPermissionRepository.AddAsync(userCompanyPermission);
@@ -104,8 +111,6 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
 
             return company.Id; // Devuelve el Id de la nueva compañía
         }
-
-
 
         public async Task<Company> Handle(UpdateCompanyCommand command)
         {
@@ -146,6 +151,5 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
 
             return existingCompany;
         }
-
     }
 }

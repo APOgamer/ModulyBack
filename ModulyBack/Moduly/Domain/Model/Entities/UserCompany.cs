@@ -28,6 +28,5 @@ public class UserCompany
     public DateTime JoinDate { get; set; } = DateTime.UtcNow;
     public ICollection<UserCompanyPermission> UserCompanyPermissions { get; set; } = new HashSet<UserCompanyPermission>();
 
-    public ICollection<ModulePermission> ModulePermissions { get; set; } = new HashSet<ModulePermission>();
     
 }

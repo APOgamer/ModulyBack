@@ -23,4 +23,8 @@ public class CompanyQueryService : ICompanyQueryService
     {
         return await _companyRepository.GetAllAsync();
     }
+    public async Task<Company?> Handle(GetCompanyByModuleIdQuery query)
+    {
+        return await _companyRepository.GetCompanyByModuleIdAsync(query.ModuleId);
+    }
 }

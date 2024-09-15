@@ -16,8 +16,8 @@ namespace ModulyBack.Moduly.Domain.Model.Aggregate
         [Required]
         public Guid CompanyId { get; set; }
         public Company Company { get; set; } = null!;
-        
-        [Required]
-        public List<AllowedActionEnum> AllowedActions { get; set; } = new List<AllowedActionEnum>();
+
+        public ICollection<PermissionTypeAction> PermissionTypeActions { get; set; } = new List<PermissionTypeAction>();
     }
+
 }

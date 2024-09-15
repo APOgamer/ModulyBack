@@ -6,38 +6,59 @@ using ModulyBack.Moduly.Domain.Repositories;
 using ModulyBack.Moduly.Domain.Services;
 using ModulyBack.Shared.Domain.Repositories;
 
-namespace ModulyBack.Moduly.Application.Internal.CommandServices;
+namespace ModulyBack.Moduly.Application.Internal.CommandServices
+{
     public class InvoiceCommandService : IInvoiceCommandService
     {
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserCompanyPermissionRepository _userCompanyPermissionRepository;
-        private readonly IUserCompanyRepository _UserCompanyRepository;
+        private readonly IUserCompanyRepository _userCompanyRepository;
+        private readonly ICompanyRepository _companyRepository;
+
         public InvoiceCommandService(
             IInvoiceRepository invoiceRepository, 
             IUnitOfWork unitOfWork,
             IUserCompanyPermissionRepository userCompanyPermissionRepository,
-            IUserCompanyRepository userCompanyRepository)
+            IUserCompanyRepository userCompanyRepository,
+            ICompanyRepository companyRepository)
         {
             _invoiceRepository = invoiceRepository;
             _unitOfWork = unitOfWork;
             _userCompanyPermissionRepository = userCompanyPermissionRepository;
-            _UserCompanyRepository = userCompanyRepository;
+            _userCompanyRepository = userCompanyRepository;
+            _companyRepository = companyRepository;
         }
 
-        // Verificar permisos antes de crear una factura en el módulo especificado
         public async Task<Invoice> Handle(CreateInvoiceCommand command)
         {
-            var UserCommandId = await _UserCompanyRepository.FindUserCompanyIdByUserId(command.UserId);
-            if (!UserCommandId.HasValue)
-                throw new Exception($"UserCompanyId not found for UserId: {command.UserId}");
-    
+            // Obtener el UserCompanyId
+            var userCompanyId = await _userCompanyRepository.FindUserCompanyIdByUserId(command.UserId);
+            if (!userCompanyId.HasValue)
+            {
+                throw new UnauthorizedAccessException("User is not associated with any company.");
+            }
+
+            // Verificar si el usuario es el creador de la compañía
+            var company = await _companyRepository.FindByModuleIdAsync(command.ModuleId);
+            if (company != null && company.CreatedById == command.UserId)
+            {
+                // El usuario es el creador, tiene permiso automático
+                return await CreateInvoice(command);
+            }
+
+            // Si no es el creador, verificar permisos
             var userPermission = await _userCompanyPermissionRepository
-                .FindByUserCompanyAndPermissionTypeInModuleAsync(UserCommandId.Value, command.ModuleId, AllowedActionEnum.CREATE_INVOICE);
+                .FindByUserCompanyAndPermissionTypeInModuleAsync(userCompanyId.Value, command.ModuleId, AllowedActionEnum.CREATE_INVOICE);
 
             if (userPermission == null)
-                throw new Exception($"User does not have permission to create invoices in ModuleId: {command.ModuleId}");
+                throw new UnauthorizedAccessException($"User does not have permission to create invoices in ModuleId: {command.ModuleId}");
 
+            return await CreateInvoice(command);
+        }
+
+        private async Task<Invoice> CreateInvoice(CreateInvoiceCommand command)
+        {
             var invoice = new Invoice
             {
                 Code = command.Code,
@@ -56,7 +77,6 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices;
             await _unitOfWork.CompleteAsync();
             return invoice;
         }
-
 
         // Verificar permisos antes de actualizar una factura en el módulo especificado
         public async Task Handle(UpdateInvoiceCommand command)
@@ -122,3 +142,4 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices;
             return invoice;
         }
     }
+}
