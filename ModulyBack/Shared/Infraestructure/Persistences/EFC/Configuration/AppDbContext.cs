@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ModulyBack.IAM.Domain.Model.Aggregates;
+using ModulyBack.Moduly.Domain.Model.Aggregate;
 using ModulyBack.Moduly.Domain.Model.Entities;
 
 namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
@@ -16,9 +17,13 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
         public DbSet<Company> Companies { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<Module> Modules { get; set; }
-        public DbSet<ModulePermission> ModulePermissions { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<UserCompany> UserCompanies { get; set; }
+        public DbSet<Being> Beings { get; set; }
+        public DbSet<BeingModule> BeingModules { get; set; }
+        public DbSet<UserCompanyPermission> UserCompanyPermissions { get; set; }
+        public DbSet<PermissionType> PermissionTypes { get; set; }
+        public DbSet<PermissionTypeAction> PermissionTypeActions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
@@ -34,102 +39,143 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
         {
             base.OnModelCreating(builder);
 
-            // User entity
-            builder.Entity<User>()
-                .HasKey(u => u.Id);
+            // User Entity
+            builder.Entity<User>(entity =>
+            {
+                entity.HasKey(u => u.Id);
+                entity.Property(u => u.Id).HasColumnName("id_user");
+                entity.Property(u => u.Username).HasColumnName("username");
+                entity.Property(u => u.FullName).HasColumnName("full_name");
+                entity.Property(u => u.Age).HasColumnName("age");
+                entity.Property(u => u.Dni).HasColumnName("dni");
+                entity.Property(u => u.PhoneNumber).HasColumnName("phone_number");
+                entity.Property(u => u.Email).HasColumnName("email");
+                entity.Property(u => u.PasswordHash).HasColumnName("password_hash");
+                entity.Property(u => u.CreationDate).HasColumnName("creation_date");
+            });
 
-            // Company entity
-            builder.Entity<Company>()
-                .HasKey(c => c.Id);
+            // Company Entity
+            builder.Entity<Company>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+                entity.HasMany(c => c.UserCompanies)
+                    .WithOne(uc => uc.Company)
+                    .HasForeignKey(uc => uc.CompanyId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<Company>()
-                .HasMany(c => c.UserCompanies)
-                .WithOne(uc => uc.Company)
-                .HasForeignKey(uc => uc.CompanyId);
+                entity.HasMany(c => c.Modules)
+                    .WithOne(m => m.Company)
+                    .HasForeignKey(m => m.CompanyId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            builder.Entity<Company>()
-                .HasMany(c => c.Modules)
-                .WithOne(m => m.Company)
-                .HasForeignKey(m => m.CompanyId);
+            // UserCompany Entity
+            builder.Entity<UserCompany>(entity =>
+            {
+                entity.HasKey(uc => uc.Id);
+                entity.HasOne(uc => uc.User)
+                    .WithMany()
+                    .HasForeignKey(uc => uc.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            // UserCompany entity
-            builder.Entity<UserCompany>()
-                .HasKey(uc => uc.Id);
+                entity.HasOne(uc => uc.Company)
+                    .WithMany(c => c.UserCompanies)
+                    .HasForeignKey(uc => uc.CompanyId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<UserCompany>()
-                .HasMany(uc => uc.ModulePermissions)
-                .WithOne(mp => mp.UserCompany)
-                .HasForeignKey(mp => mp.UserCompanyId);
+                entity.HasMany(uc => uc.UserCompanyPermissions)
+                    .WithOne(ucp => ucp.UserCompany)
+                    .HasForeignKey(ucp => ucp.UserCompanyId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            // Module entity
-            builder.Entity<Module>()
-                .HasKey(m => m.Id);
+            // Module Entity
+            builder.Entity<Module>(entity =>
+            {
+                entity.HasKey(m => m.Id);
+                entity.HasMany(m => m.Invoices)
+                    .WithOne(i => i.Module)
+                    .HasForeignKey(i => i.ModuleId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<Module>()
-                .HasMany(m => m.Invoices)
-                .WithOne(i => i.Module)
-                .HasForeignKey(i => i.ModuleId);
+                entity.HasMany(m => m.BeingModules)
+                    .WithOne(bm => bm.Module)
+                    .HasForeignKey(bm => bm.ModuleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            builder.Entity<Module>()
-                .HasMany(m => m.Permissions)
-                .WithOne(mp => mp.Module)
-                .HasForeignKey(mp => mp.ModuleId);
+            // Invoice Entity
+            builder.Entity<Invoice>(entity =>
+            {
+                entity.HasKey(i => i.Id);
+                entity.HasMany(i => i.Payments)
+                    .WithOne(p => p.Invoice)
+                    .HasForeignKey(p => p.InvoiceId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            // Invoice entity
-            builder.Entity<Invoice>()
-                .HasKey(i => i.Id);
+            // Payment Entity
+            builder.Entity<Payment>(entity =>
+            {
+                entity.HasKey(p => p.Id);
+            });
 
-            builder.Entity<Invoice>()
-                .HasMany(i => i.Payments)
-                .WithOne(p => p.Invoice)
-                .HasForeignKey(p => p.InvoiceId);
+            // Being Entity
+            builder.Entity<Being>(entity =>
+            {
+                entity.HasKey(b => b.Id);
+                entity.HasMany(b => b.BeingModules)
+                    .WithOne(bm => bm.Being)
+                    .HasForeignKey(bm => bm.BeingId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            // ModulePermission entity
-            builder.Entity<ModulePermission>()
-                .HasKey(mp => mp.Id);
+            // BeingModule Entity
+            builder.Entity<BeingModule>(entity =>
+            {
+                entity.HasKey(bm => new { bm.BeingId, bm.ModuleId });
+            });
 
-            // Payment entity
-            builder.Entity<Payment>()
-                .HasKey(p => p.Id);
+            // UserCompanyPermission Entity
+            builder.Entity<UserCompanyPermission>(entity =>
+            {
+                entity.HasKey(ucp => ucp.Id);
+                entity.HasOne(ucp => ucp.UserCompany)
+                    .WithMany(uc => uc.UserCompanyPermissions)
+                    .HasForeignKey(ucp => ucp.UserCompanyId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            // Configurations for the `User` table to match the database schema
-            builder.Entity<User>()
-                .Property(u => u.Id)
-                .HasColumnName("id_user");
+                entity.HasOne(ucp => ucp.Module)
+                    .WithMany()
+                    .HasForeignKey(ucp => ucp.ModuleId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<User>()
-                .Property(u => u.Username)
-                .HasColumnName("username");
+                entity.HasOne(ucp => ucp.PermissionType)
+                    .WithMany()
+                    .HasForeignKey(ucp => ucp.PermissionTypeId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            builder.Entity<User>()
-                .Property(u => u.FullName)
-                .HasColumnName("full_name");
+            // PermissionType Entity
+            builder.Entity<PermissionType>(entity =>
+            {
+                entity.HasKey(pt => pt.Id);
+                entity.HasOne(pt => pt.Company)
+                    .WithMany()
+                    .HasForeignKey(pt => pt.CompanyId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<User>()
-                .Property(u => u.Age)
-                .HasColumnName("age");
+                entity.HasMany(pt => pt.PermissionTypeActions)
+                    .WithOne(pta => pta.PermissionType)
+                    .HasForeignKey(pta => pta.PermissionTypeId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            builder.Entity<User>()
-                .Property(u => u.Dni)
-                .HasColumnName("dni");
-
-            builder.Entity<User>()
-                .Property(u => u.PhoneNumber)
-                .HasColumnName("phone_number");
-
-            builder.Entity<User>()
-                .Property(u => u.Email)
-                .HasColumnName("email");
-
-            builder.Entity<User>()
-                .Property(u => u.PasswordHash)
-                .HasColumnName("password_hash");
-
-            builder.Entity<User>()
-                .Property(u => u.CreationDate)
-                .HasColumnName("creation_date");
-
-            // Similar configurations can be added for other entities if needed
+            // PermissionTypeAction Entity
+            builder.Entity<PermissionTypeAction>(entity =>
+            {
+                entity.HasKey(pta => pta.Id);
+            });
         }
     }
 }

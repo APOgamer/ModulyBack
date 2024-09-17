@@ -126,6 +126,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
+builder.Services.AddScoped<IUserCompanyRepository, UserCompanyRepository>();
+builder.Services.AddScoped<IUserCompanyPermissionRepository, UserCompanyPermissionRepository>();
+builder.Services.AddScoped<IPermissionTypeRepository, PermissionTypeRepository>();
 
 
 
@@ -137,12 +140,15 @@ builder.Services.AddScoped<IUserCommandService, UserCommandService>();
 builder.Services.AddScoped<ICompanyCommandService, CompanyCommandService>();
 builder.Services.AddScoped<IInvoiceCommandService, InvoiceCommandService>();
 builder.Services.AddScoped<IModuleCommandService, ModuleCommandService>();
+builder.Services.AddScoped<IPermissionAssignmentCommandService, PermissionAssignmentCommandService>();
+builder.Services.AddScoped<IPermissionTypeCommandService, PermissionTypeCommandService>();
 
 
 builder.Services.AddScoped<IUserQueryServices, UserQueryService>();
 builder.Services.AddScoped<ICompanyQueryService, CompanyQueryService>();
 builder.Services.AddScoped<IInvoiceQueryService, InvoiceQueryService>();
 builder.Services.AddScoped<IModuleQueryService, ModuleQueryService>();
+builder.Services.AddScoped<IUserCompanyQueryService, UserCompanyQueryService>();
 
 
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));

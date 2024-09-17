@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using ModulyBack.IAM.Domain.Model.Aggregates;
+using ModulyBack.Moduly.Domain.Model.Aggregate;
 
 namespace ModulyBack.Moduly.Domain.Model.Entities;
 
@@ -25,6 +26,7 @@ public class UserCompany
 
     [Required]
     public DateTime JoinDate { get; set; } = DateTime.UtcNow;
+    public ICollection<UserCompanyPermission> UserCompanyPermissions { get; set; } = new HashSet<UserCompanyPermission>();
 
-    public ICollection<ModulePermission> ModulePermissions { get; set; } = new HashSet<ModulePermission>();
+    
 }

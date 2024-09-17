@@ -7,5 +7,6 @@ public record UpdateCompanyCommand(
     string Ruc,
     string Address,
     string Email,
-    string Password
+    string Password,
+    Guid CreatedById
 );

@@ -10,4 +10,7 @@ public interface ICompanyRepository : IBaseRepository<Company>
     Task AddAsync(Company company);
     Task UpdateAsync(Company company);
     Task<bool> ExistsByIdAsync(Guid id);
+    Task<Company?> FindByModuleIdAsync(Guid moduleId);
+    Task<Company?> GetCompanyByModuleIdAsync(Guid moduleId);  // Nuevo método
+
 }

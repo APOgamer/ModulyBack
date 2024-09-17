@@ -44,8 +44,23 @@ public class CompanyController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateCompany([FromBody] CreateCompanyCommand command)
     {
-        await _companyCommandService.Handle(command);
-        return CreatedAtAction(nameof(GetCompanyById), null);
+        if (command == null)
+        {
+            return BadRequest("Invalid data.");
+        }
+
+        try
+        {
+            var createdCompanyId = await _companyCommandService.Handle(command);
+
+            // El ID del nuevo recurso creado se pasa a la acción GetCompanyById
+            return CreatedAtAction(nameof(GetCompanyById), new { id = createdCompanyId }, command);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            return StatusCode(500, $"An error occurred while creating the company: {ex.Message}");
+        }
     }
 
     [HttpPut("{id}")]
@@ -54,7 +69,24 @@ public class CompanyController : ControllerBase
         if (id != command.Id)
             return BadRequest("ID mismatch");
         
-        await _companyCommandService.Handle(command);
-        return NoContent();
+        try
+        {
+            var updatedCompany = await _companyCommandService.Handle(command);
+            return Ok(updatedCompany);
+        }
+        catch (Exception ex) when (ex.Message == "Company not found")
+        {
+            return NotFound($"Company with ID {id} not found.");
+        }
+        catch (Exception ex) when (ex.Message == "User not associated with this company." || 
+                                   ex.Message == "User does not have admin rights for this company.")
+        {
+            return Forbid(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            return StatusCode(500, $"An error occurred while updating the company: {ex.Message}");
+        }
     }
 }

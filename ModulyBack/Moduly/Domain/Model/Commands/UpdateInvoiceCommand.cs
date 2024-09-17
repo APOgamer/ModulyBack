@@ -11,6 +11,7 @@ public record UpdateInvoiceCommand(
     int Quantity,
     decimal UnitPrice,
     decimal TotalPayment,
-    string Status
+    string Status,
+    Guid UserCompanyId
 );
 
