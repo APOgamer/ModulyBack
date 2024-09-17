@@ -9,5 +9,7 @@ public interface ICompanyQueryService
     Task<IEnumerable<Company>> Handle(GetAllCompaniesQuery query);
     Task<Company?> Handle(GetCompanyByModuleIdQuery query);  // Nuevo método
     Task<Company?> GetCompanyByIdAsync(Guid companyId);
+    Task<IEnumerable<Company>> Handle(GetCompaniesByCreatorIdQuery query);
+    Task<IEnumerable<UserCompany>> Handle(GetEmployeesByCompanyIdQuery query);
 
 }

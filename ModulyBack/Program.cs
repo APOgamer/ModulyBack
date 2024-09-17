@@ -49,7 +49,7 @@ builder.Services.AddSwaggerGen(
                 Title = "ModulyBack API",
                 Version = "v1",
                 Description = "ModulyBack Platform API",
-                TermsOfService = new Uri("https://notelive.netlify.app"),
+                TermsOfService = new Uri("http://coquettecraft.duckdns.org:4200/"),
                 Contact = new OpenApiContact
                 {
                     Name = "ModulyRG",
@@ -105,18 +105,14 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(corsPolicyBuilder =>
     {
         corsPolicyBuilder.WithOrigins(
-                "http://localhost:8080", 
-                "https://upcproyects.duckdns.org",
-                "https://upcproyects.duckdns.org:8080",
-                "http://localhost:8081",
-                "http://190.239.59.168:8081",
-                "https://upcproyects.duckdns.org:8081"
+                "http://coquettecraft.duckdns.org:4200" // Dominio permitido
             )
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowAnyHeader()       // Permitir cualquier encabezado
+            .AllowAnyMethod()       // Permitir cualquier método HTTP (GET, POST, etc.)
+            .AllowCredentials();    // Permitir el envío de cookies o credenciales
     });
 });
+
 
 // ADD REPOSITORIES AND SERVICES
 

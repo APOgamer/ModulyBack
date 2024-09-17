@@ -12,5 +12,6 @@ public interface ICompanyRepository : IBaseRepository<Company>
     Task<bool> ExistsByIdAsync(Guid id);
     Task<Company?> FindByModuleIdAsync(Guid moduleId);
     Task<Company?> GetCompanyByModuleIdAsync(Guid moduleId);  // Nuevo método
+    Task<IEnumerable<Company>> FindByCreatorIdAsync(Guid creatorId);
 
 }

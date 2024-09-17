@@ -46,4 +46,10 @@ public class CompanyRepository : BaseRepository<Company>, ICompanyRepository
         return await Context.Set<Company>()
             .FirstOrDefaultAsync(c => c.Modules.Any(m => m.Id == moduleId));
     }
+    public async Task<IEnumerable<Company>> FindByCreatorIdAsync(Guid creatorId)
+    {
+        return await Context.Set<Company>()
+            .Where(c => c.CreatedById == creatorId)
+            .ToListAsync();
+    }
 }
