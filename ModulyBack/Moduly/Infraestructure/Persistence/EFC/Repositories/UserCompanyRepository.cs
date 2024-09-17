@@ -26,6 +26,11 @@ public class UserCompanyRepository : BaseRepository<UserCompany>, IUserCompanyRe
             .FirstOrDefaultAsync(uc => uc.UserId == userId);
         return userCompany?.Id; 
     }
-
+    public async Task<IEnumerable<UserCompany>> FindByCompanyIdAsync(Guid companyId)
+    {
+        return await Context.UserCompanies
+            .Where(uc => uc.CompanyId == companyId)
+            .ToListAsync();
+    }
 
 }

@@ -7,5 +7,5 @@ public interface IUserCompanyRepository : IBaseRepository<UserCompany>
 {
     Task<UserCompany?> FindByUserAndCompanyAsync(Guid userId, Guid companyId);
     Task<Guid?> FindUserCompanyIdByUserId(Guid userId);
-
+    Task<IEnumerable<UserCompany>> FindByCompanyIdAsync(Guid companyId);
 }

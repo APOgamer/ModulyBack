@@ -89,4 +89,28 @@ public class CompanyController : ControllerBase
             return StatusCode(500, $"An error occurred while updating the company: {ex.Message}");
         }
     }
+    [HttpGet("getbycreatorid/{creatorId}")]
+    public async Task<IActionResult> GetCompaniesByCreatorId(Guid creatorId)
+    {
+        var query = new GetCompaniesByCreatorIdQuery(creatorId);
+        var companies = await _companyQueryService.Handle(query);
+
+        if (companies == null || !companies.Any())
+            return NotFound();
+
+        var companyResources = companies.Select(CompanyResourceFromEntityAssembler.ToResourceFromEntity);
+        return Ok(companyResources);
+    }
+    [HttpGet("getemployeesbycompany/{companyId}")]
+    public async Task<IActionResult> GetEmployeesByCompanyId(Guid companyId)
+    {
+        var query = new GetEmployeesByCompanyIdQuery(companyId);
+        var userCompanies = await _companyQueryService.Handle(query);
+
+        if (userCompanies == null || !userCompanies.Any())
+            return NotFound();
+
+        var employeeResources = userCompanies.Select(UserCompanyResourceFromEntityAssembler.ToResourceFromEntity);
+        return Ok(employeeResources);
+    }
 }
