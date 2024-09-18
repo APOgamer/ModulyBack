@@ -43,4 +43,12 @@ public class ModuleRepository : BaseRepository<Module>, IModuleRepository
         Context.Set<Module>().Remove(module);
         await Context.SaveChangesAsync();
     }
+    
+    public async Task<Module?> GetFirstModuleByCompanyIdAsync(Guid companyId)
+    {
+        return await Context.Modules
+            .Where(m => m.CompanyId == companyId)
+            .OrderBy(m => m.CreationDate)
+            .FirstOrDefaultAsync();
+    }
 }

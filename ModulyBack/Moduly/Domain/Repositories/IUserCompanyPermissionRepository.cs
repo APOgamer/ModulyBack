@@ -10,5 +10,6 @@ public interface IUserCompanyPermissionRepository : IBaseRepository<UserCompanyP
 
     Task<UserCompanyPermission?> FindByUserCompanyAndPermissionTypeInModuleAsync(Guid userCompanyId, Guid moduleId,
         AllowedActionEnum permissionType);
+    Task<List<UserCompanyPermission>> GetByUserCompanyIdAndModuleIdAsync(Guid userCompanyId, Guid moduleId);
 
 }

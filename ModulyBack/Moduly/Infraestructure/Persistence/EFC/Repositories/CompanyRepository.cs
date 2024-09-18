@@ -35,6 +35,13 @@ public class CompanyRepository : BaseRepository<Company>, ICompanyRepository
     {
         return await Context.Set<Company>().AnyAsync(c => c.Id == id);
     }
+    
+    public async Task<Company?> GetByIdAsync(Guid id)
+    {
+        return await Context.Set<Company>().FindAsync(id);
+    }
+
+
     public async Task<Company?> FindByModuleIdAsync(Guid moduleId)
     {
         return await Context.Set<Company>()

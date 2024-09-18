@@ -8,5 +8,6 @@ public interface IPermissionTypeRepository : IBaseRepository<PermissionType>
 {
     Task AddAsync(PermissionType permissionType);
     Task<IEnumerable<PermissionType>> GetPermissionTypesByCompanyId(Guid companyId);
+    Task<PermissionType?> GetByIdAsync(Guid id); // Agrega esta línea
 
 }

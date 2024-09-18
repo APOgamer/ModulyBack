@@ -3,5 +3,6 @@
 public record UpdateModuleCommand(
     Guid Id,
     string ModuleName,
-    string ModuleType
+    string ModuleType,
+    Guid UserId
 );

@@ -3,5 +3,6 @@
 public record CreateModuleCommand(
     string ModuleName,
     string ModuleType,
-    Guid CompanyId
+    Guid CompanyId,
+    Guid UserId
 );
