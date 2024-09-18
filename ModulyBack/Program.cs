@@ -150,7 +150,7 @@ builder.Services.AddScoped<IInvoiceQueryService, InvoiceQueryService>();
 builder.Services.AddScoped<IModuleQueryService, ModuleQueryService>();
 builder.Services.AddScoped<IUserCompanyQueryService, UserCompanyQueryService>();
 builder.Services.AddScoped<IBeingQueryService, BeingQueryService>();
-builder.Services.AddScoped<IInventoryQueryService, IInventoryQueryService>();
+builder.Services.AddScoped<IInventoryQueryService, InventoryQueryService>();
 
 
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));

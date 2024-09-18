@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace ModulyBack.Moduly.Domain.Model.Entities
 {
@@ -12,62 +14,64 @@ namespace ModulyBack.Moduly.Domain.Model.Entities
         public Guid ModuleId { get; set; }
 
         [Required]
-        public int Quantity { get; set; }
+        public string Name { get; set; }
+
+        public string Description { get; set; }
 
         [Required]
-        public int MinimumStockLevel { get; set; }
+        public ICollection<InventoryItem> Items { get; set; } = new List<InventoryItem>();
 
         [Required]
-        public int MaximumStockLevel { get; set; }
-
-        [Required]
-        public int ReorderPoint { get; set; }
-
-        [Required]
-        public bool IsInStock { get; set; }
-
-        public DateTime? LastRestockDate { get; set; }
-
-        public DateTime? LastSaleDate { get; set; }
-
-        [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }
 
-        public int QuantityForReposition => MaximumStockLevel - Quantity;
+        public int TotalQuantity => Items.Sum(item => item.Quantity);
 
-        public void UpdateDetails(string name, string description, decimal unitPrice, int minimumStockLevel, int maximumStockLevel, int reorderPoint)
+        public bool IsInStock => TotalQuantity > 0;
+
+        public void UpdateDetails(string name, string description)
         {
-            // Asignar los valores nuevos a los campos del inventario
-            MinimumStockLevel = minimumStockLevel;
-            MaximumStockLevel = maximumStockLevel;
-            ReorderPoint = reorderPoint;
-            IsInStock = Quantity > 0;
+            Name = name;
+            Description = description;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void AddStock(int amount)
+        public void AddStock(Guid beingId, int quantity)
         {
-            Quantity += amount;
-            LastRestockDate = DateTime.UtcNow;
-            UpdateStockStatus();
-        }
-
-        public void RemoveStock(int amount)
-        {
-            if (amount > Quantity)
+            var item = Items.FirstOrDefault(i => i.BeingId == beingId);
+            if (item == null)
             {
-                throw new InvalidOperationException("Cannot remove more stock than available.");
+                item = new InventoryItem { BeingId = beingId, Quantity = quantity };
+                Items.Add(item);
             }
-            Quantity -= amount;
-            LastSaleDate = DateTime.UtcNow;
-            UpdateStockStatus();
+            else
+            {
+                item.Quantity += quantity;
+            }
+            UpdatedAt = DateTime.UtcNow;
         }
 
-        private void UpdateStockStatus()
+        public void RemoveStock(Guid beingId, int quantity)
         {
-            IsInStock = Quantity > 0;
+            var item = Items.FirstOrDefault(i => i.BeingId == beingId);
+            if (item == null || item.Quantity < quantity)
+            {
+                throw new InvalidOperationException("Not enough stock to remove.");
+            }
+            item.Quantity -= quantity;
+            if (item.Quantity == 0)
+            {
+                Items.Remove(item);
+            }
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public int GetStockLevel(Guid beingId)
+        {
+            return Items.FirstOrDefault(i => i.BeingId == beingId)?.Quantity ?? 0;
         }
     }
+
+
 }

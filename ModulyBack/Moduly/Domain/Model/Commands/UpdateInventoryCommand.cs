@@ -1,13 +1,7 @@
-﻿namespace ModulyBack.Moduly.Domain.Model.Commands
+﻿using System;
+
+namespace ModulyBack.Moduly.Domain.Model.Commands
 {
-    public record UpdateInventoryCommand(
-        Guid InventoryId,
-        string Name,
-        string Description,
-        decimal UnitPrice,
-        int MinimumStockLevel,
-        int MaximumStockLevel,
-        int ReorderPoint,
-        Guid UserId
-    );
+    public record UpdateInventoryCommand(Guid InventoryId, Guid UserId, string Name, string Description);
+
 }

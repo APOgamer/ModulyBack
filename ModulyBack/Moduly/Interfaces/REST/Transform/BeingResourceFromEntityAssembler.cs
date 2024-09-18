@@ -7,12 +7,13 @@ namespace ModulyBack.Moduly.Interfaces.REST.Transform
     {
         public static BeingResource ToResourceFromEntity(Being entity)
         {
-            return new BeingResource
+            return new BeingResource(
+                entity.Id,
+                entity.IdentifierName,
+                entity.Description,
+                entity.Price
+            )
             {
-                Id = entity.Id,
-                IdentifierName = entity.IdentifierName,
-                Description = entity.Description,
-                Price = entity.Price,
                 Category = entity.Category,
                 ManufactureDate = entity.ManufactureDate,
                 ExpiryDate = entity.ExpiryDate,

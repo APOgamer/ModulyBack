@@ -30,25 +30,14 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
 
         public async Task<Inventory> Handle(CreateInventoryCommand command)
         {
-            var userCompanyId = await _userCompanyQueryService.FindUserCompanyIdByUserId(command.UserId);
-            if (!userCompanyId.HasValue)
-                throw new UnauthorizedAccessException("User is not associated with any company.");
-
-            var permission = await _userCompanyPermissionRepository.FindByUserCompanyAndPermissionTypeInModuleAsync(
-                userCompanyId.Value, command.ModuleId, AllowedActionEnum.CREATE_INVENTORY);
-
-            if (permission == null)
-                throw new UnauthorizedAccessException("User does not have permission to create inventory in this module.");
+            await ValidateUserPermission(command.UserId, command.ModuleId, AllowedActionEnum.CREATE_INVENTORY);
 
             var inventory = new Inventory
             {
                 Id = Guid.NewGuid(),
                 ModuleId = command.ModuleId,
-                Quantity = command.InitialStock,
-                MinimumStockLevel = command.MinimumStockLevel,
-                MaximumStockLevel = command.MaximumStockLevel,
-                ReorderPoint = command.ReorderPoint,
-                IsInStock = command.InitialStock > 0,
+                Name = command.Name,
+                Description = command.Description,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -60,29 +49,10 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
 
         public async Task<Inventory> Handle(UpdateInventoryCommand command)
         {
-            var inventory = await _inventoryRepository.FindByIdAsync(command.InventoryId);
-            if (inventory == null)
-                throw new KeyNotFoundException("Inventory not found.");
+            var inventory = await GetInventory(command.InventoryId);
+            await ValidateUserPermission(command.UserId, inventory.ModuleId, AllowedActionEnum.EDIT_INVENTORY);
 
-            var userCompanyId = await _userCompanyQueryService.FindUserCompanyIdByUserId(command.UserId);
-            if (!userCompanyId.HasValue)
-                throw new UnauthorizedAccessException("User is not associated with any company.");
-
-            var permission = await _userCompanyPermissionRepository.FindByUserCompanyAndPermissionTypeInModuleAsync(
-                userCompanyId.Value, inventory.ModuleId, AllowedActionEnum.EDIT_INVENTORY);
-
-            if (permission == null)
-                throw new UnauthorizedAccessException("User does not have permission to edit inventory in this module.");
-
-            inventory.UpdateDetails(
-                command.Name,
-                command.Description,
-                command.UnitPrice,
-                command.MinimumStockLevel,
-                command.MaximumStockLevel,
-                command.ReorderPoint
-            );
-
+            inventory.UpdateDetails(command.Name, command.Description);
             await _unitOfWork.CompleteAsync();
 
             return inventory;
@@ -90,19 +60,8 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
 
         public async Task Handle(DeleteInventoryCommand command)
         {
-            var inventory = await _inventoryRepository.FindByIdAsync(command.InventoryId);
-            if (inventory == null)
-                throw new KeyNotFoundException("Inventory not found.");
-
-            var userCompanyId = await _userCompanyQueryService.FindUserCompanyIdByUserId(command.UserId);
-            if (!userCompanyId.HasValue)
-                throw new UnauthorizedAccessException("User is not associated with any company.");
-
-            var permission = await _userCompanyPermissionRepository.FindByUserCompanyAndPermissionTypeInModuleAsync(
-                userCompanyId.Value, inventory.ModuleId, AllowedActionEnum.DELETE_INVENTORY);
-
-            if (permission == null)
-                throw new UnauthorizedAccessException("User does not have permission to delete inventory in this module.");
+            var inventory = await GetInventory(command.InventoryId);
+            await ValidateUserPermission(command.UserId, inventory.ModuleId, AllowedActionEnum.DELETE_INVENTORY);
 
             _inventoryRepository.Remove(inventory);
             await _unitOfWork.CompleteAsync();
@@ -110,21 +69,10 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
 
         public async Task<Inventory> Handle(AddStockCommand command)
         {
-            var inventory = await _inventoryRepository.FindByIdAsync(command.InventoryId);
-            if (inventory == null)
-                throw new KeyNotFoundException("Inventory not found.");
+            var inventory = await GetInventory(command.InventoryId);
+            await ValidateUserPermission(command.UserId, inventory.ModuleId, AllowedActionEnum.EDIT_INVENTORY);
 
-            var userCompanyId = await _userCompanyQueryService.FindUserCompanyIdByUserId(command.UserId);
-            if (!userCompanyId.HasValue)
-                throw new UnauthorizedAccessException("User is not associated with any company.");
-
-            var permission = await _userCompanyPermissionRepository.FindByUserCompanyAndPermissionTypeInModuleAsync(
-                userCompanyId.Value, inventory.ModuleId, AllowedActionEnum.EDIT_INVENTORY);
-
-            if (permission == null)
-                throw new UnauthorizedAccessException("User does not have permission to edit inventory in this module.");
-
-            inventory.AddStock(command.Amount);
+            inventory.AddStock(command.BeingId, command.Quantity);
             await _unitOfWork.CompleteAsync();
 
             return inventory;
@@ -132,24 +80,35 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
 
         public async Task<Inventory> Handle(RemoveStockCommand command)
         {
-            var inventory = await _inventoryRepository.FindByIdAsync(command.InventoryId);
+            var inventory = await GetInventory(command.InventoryId);
+            await ValidateUserPermission(command.UserId, inventory.ModuleId, AllowedActionEnum.EDIT_INVENTORY);
+
+            inventory.RemoveStock(command.BeingId, command.Quantity);
+            await _unitOfWork.CompleteAsync();
+
+            return inventory;
+        }
+
+        private async Task<Inventory> GetInventory(Guid inventoryId)
+        {
+            var inventory = await _inventoryRepository.FindByIdAsync(inventoryId);
             if (inventory == null)
                 throw new KeyNotFoundException("Inventory not found.");
 
-            var userCompanyId = await _userCompanyQueryService.FindUserCompanyIdByUserId(command.UserId);
+            return inventory;
+        }
+
+        private async Task ValidateUserPermission(Guid userId, Guid moduleId, AllowedActionEnum action)
+        {
+            var userCompanyId = await _userCompanyQueryService.FindUserCompanyIdByUserId(userId);
             if (!userCompanyId.HasValue)
                 throw new UnauthorizedAccessException("User is not associated with any company.");
 
             var permission = await _userCompanyPermissionRepository.FindByUserCompanyAndPermissionTypeInModuleAsync(
-                userCompanyId.Value, inventory.ModuleId, AllowedActionEnum.EDIT_INVENTORY);
+                userCompanyId.Value, moduleId, action);
 
             if (permission == null)
-                throw new UnauthorizedAccessException("User does not have permission to edit inventory in this module.");
-
-            inventory.RemoveStock(command.Amount);
-            await _unitOfWork.CompleteAsync();
-
-            return inventory;
+                throw new UnauthorizedAccessException($"User does not have permission to perform '{action}' in this module.");
         }
     }
 }

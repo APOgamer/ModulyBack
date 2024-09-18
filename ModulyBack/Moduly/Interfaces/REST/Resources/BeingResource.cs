@@ -18,4 +18,11 @@ public class BeingResource
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public Guid ModuleId { get; set; }
+    public BeingResource(Guid id, string identifierName, string? description, decimal price)
+    {
+        Id = id;
+        IdentifierName = identifierName;
+        Description = description;
+        Price = price;
+    }
 }
