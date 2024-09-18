@@ -69,8 +69,8 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             var defaultModule = new Module
             {
                 Id = Guid.NewGuid(),
-                ModuleName = "Default Module",
-                ModuleType = "Inhabitant",
+                ModuleName = "Admin Module",
+                ModuleType = "Here, permissions are assigned to employees and invitations are sent.",
                 CompanyId = company.Id,
                 CreationDate = DateTime.UtcNow
             };
