@@ -1,10 +1,5 @@
-﻿namespace ModulyBack.Moduly.Domain.Model.Commands;
+﻿namespace ModulyBack.Moduly.Domain.Model.Commands
+{
+    public record CreateInventoryCommand(Guid UserId, Guid ModuleId, string Name, string Description);
 
-public record CreateInventoryCommand(
-    string Name,
-    string Description,
-    int InitialStock,
-    decimal UnitPrice,
-    Guid ModuleId,
-    Guid UserId
-);
+}

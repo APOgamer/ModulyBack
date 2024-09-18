@@ -25,6 +25,10 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
         public DbSet<PermissionType> PermissionTypes { get; set; }
         public DbSet<PermissionTypeAction> PermissionTypeActions { get; set; }
 
+        // New DbSets for Inventory and InventoryItem
+        public DbSet<Inventory> Inventories { get; set; }
+        public DbSet<InventoryItem> InventoryItems { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
             builder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
@@ -175,6 +179,30 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
             builder.Entity<PermissionTypeAction>(entity =>
             {
                 entity.HasKey(pta => pta.Id);
+            });
+
+            // Inventory Entity
+            builder.Entity<Inventory>(entity =>
+            {
+                entity.HasKey(i => i.Id);
+                entity.HasMany(i => i.Items)
+                    .WithOne(ii => ii.Inventory)
+                    .HasForeignKey(ii => ii.InventoryId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.Property(i => i.ModuleId).IsRequired();
+                entity.Property(i => i.Name).IsRequired();
+            });
+
+            // InventoryItem Entity
+            builder.Entity<InventoryItem>(entity =>
+            {
+                entity.HasKey(ii => ii.Id);
+                entity.Property(ii => ii.Quantity).IsRequired();
+                entity.HasOne(ii => ii.Being)
+                    .WithMany()
+                    .HasForeignKey(ii => ii.BeingId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

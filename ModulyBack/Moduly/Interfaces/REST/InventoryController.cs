@@ -7,7 +7,10 @@ using ModulyBack.Moduly.Interfaces.REST.Transform;
 using ModulyBack.Moduly.Domain.Model.ValueObjects;
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 using ModulyBack.Moduly.Domain.Repositories;
+using ModulyBack.Moduly.Domain.Model.Entities;
 
 namespace ModulyBack.Moduly.Interfaces.REST
 {
@@ -19,18 +22,23 @@ namespace ModulyBack.Moduly.Interfaces.REST
         private readonly IInventoryQueryService _inventoryQueryService;
         private readonly IUserCompanyQueryService _userCompanyQueryService;
         private readonly IUserCompanyPermissionRepository _userCompanyPermissionRepository;
+        private readonly IBeingQueryService _beingQueryService; 
 
         public InventoryController(
             IInventoryCommandService inventoryCommandService,
             IInventoryQueryService inventoryQueryService,
             IUserCompanyQueryService userCompanyQueryService,
-            IUserCompanyPermissionRepository userCompanyPermissionRepository)
+            IUserCompanyPermissionRepository userCompanyPermissionRepository,
+            IBeingQueryService beingQueryService) 
         {
             _inventoryCommandService = inventoryCommandService;
             _inventoryQueryService = inventoryQueryService;
             _userCompanyQueryService = userCompanyQueryService;
             _userCompanyPermissionRepository = userCompanyPermissionRepository;
+            _beingQueryService = beingQueryService; 
         }
+    
+
 
         [HttpPost]
         public async Task<IActionResult> CreateInventory([FromBody] CreateInventoryResource createInventoryResource)
@@ -200,7 +208,12 @@ namespace ModulyBack.Moduly.Interfaces.REST
                 if (userPermission == null)
                     return Forbid("User does not have permission to edit inventory in this module.");
 
-                var addStockCommand = new AddStockCommand(inventoryId, addStockResource.Amount, userCompanyId.Value);
+                // Use the new query to check if the being is associated with the module
+                var beingModule = await _beingQueryService.Handle(new CheckBeingModuleQuery(addStockResource.BeingId, inventory.ModuleId));
+                if (beingModule == null)
+                    return BadRequest("The specified being is not associated with the module.");
+
+                var addStockCommand = new AddStockCommand(inventoryId, addStockResource.BeingId, addStockResource.Quantity, userCompanyId.Value);
                 await _inventoryCommandService.Handle(addStockCommand);
 
                 var updatedInventory = await _inventoryQueryService.Handle(new GetInventoryByIdQuery(inventoryId));
@@ -212,7 +225,6 @@ namespace ModulyBack.Moduly.Interfaces.REST
                 return StatusCode(500, $"An error occurred while adding stock: {ex.Message}");
             }
         }
-
         [HttpPut("{inventoryId:guid}/removeStock")]
         public async Task<IActionResult> RemoveStock([FromRoute] Guid inventoryId, [FromBody] RemoveStockResource removeStockResource)
         {
@@ -233,7 +245,12 @@ namespace ModulyBack.Moduly.Interfaces.REST
                 if (userPermission == null)
                     return Forbid("User does not have permission to edit inventory in this module.");
 
-                var removeStockCommand = new RemoveStockCommand(inventoryId, removeStockResource.Amount, userCompanyId.Value);
+                // Use the new query to check if the being is associated with the module
+                var beingModule = await _beingQueryService.Handle(new CheckBeingModuleQuery(removeStockResource.BeingId, inventory.ModuleId));
+                if (beingModule == null)
+                    return BadRequest("The specified being is not associated with the module.");
+
+                var removeStockCommand = new RemoveStockCommand(inventoryId, removeStockResource.BeingId, removeStockResource.Quantity, userCompanyId.Value);
                 await _inventoryCommandService.Handle(removeStockCommand);
 
                 var updatedInventory = await _inventoryQueryService.Handle(new GetInventoryByIdQuery(inventoryId));
@@ -249,5 +266,8 @@ namespace ModulyBack.Moduly.Interfaces.REST
                 return StatusCode(500, $"An error occurred while removing stock: {ex.Message}");
             }
         }
+
+
+
     }
 }

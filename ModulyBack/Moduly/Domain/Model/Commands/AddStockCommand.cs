@@ -1,3 +1,3 @@
 ﻿namespace ModulyBack.Moduly.Domain.Model.Commands;
 
-public record AddStockCommand(Guid InventoryId, int Amount, Guid UserCompanyId);
+public record AddStockCommand(Guid InventoryId, Guid BeingId, int Quantity, Guid UserId);

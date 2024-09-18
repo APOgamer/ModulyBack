@@ -1,19 +1,18 @@
-﻿// UpdateInventoryCommandFromResourceAssembler
-using ModulyBack.Moduly.Domain.Model.Commands;
+﻿using ModulyBack.Moduly.Domain.Model.Commands;
 using ModulyBack.Moduly.Interfaces.REST.Resources;
 
-namespace ModulyBack.Moduly.Interfaces.REST.Transform;
-
-public static class UpdateInventoryCommandFromResourceAssembler
+namespace ModulyBack.Moduly.Interfaces.REST.Transform
 {
-    public static UpdateInventoryCommand ToCommandFromResource(Guid inventoryId, UpdateInventoryResource resource)
+    public static class UpdateInventoryCommandFromResourceAssembler
     {
-        return new UpdateInventoryCommand(
-            inventoryId,
-            resource.Name,
-            resource.Description,
-            resource.UnitPrice,
-            resource.UserId
-        );
+        public static UpdateInventoryCommand ToCommandFromResource(Guid inventoryId, UpdateInventoryResource resource)
+        {
+            return new UpdateInventoryCommand(
+                inventoryId,
+                resource.UserId,
+                resource.Name,
+                resource.Description
+            );
+        }
     }
 }

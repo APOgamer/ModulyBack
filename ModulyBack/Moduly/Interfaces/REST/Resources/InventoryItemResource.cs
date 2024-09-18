@@ -1,8 +1,9 @@
 ﻿namespace ModulyBack.Moduly.Interfaces.REST.Resources;
 
-public class RemoveStockResource
+public class InventoryItemResource
 {
-    public Guid UserId { get; set; }
+    public Guid Id { get; set; }
     public Guid BeingId { get; set; }
     public int Quantity { get; set; }
+    public DateTime LastUpdated { get; set; }
 }

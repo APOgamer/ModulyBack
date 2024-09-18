@@ -125,6 +125,8 @@ builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
 builder.Services.AddScoped<IUserCompanyRepository, UserCompanyRepository>();
 builder.Services.AddScoped<IUserCompanyPermissionRepository, UserCompanyPermissionRepository>();
 builder.Services.AddScoped<IPermissionTypeRepository, PermissionTypeRepository>();
+builder.Services.AddScoped<IBeingRepository, BeingRepository>();
+builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 
 
 
@@ -138,6 +140,8 @@ builder.Services.AddScoped<IInvoiceCommandService, InvoiceCommandService>();
 builder.Services.AddScoped<IModuleCommandService, ModuleCommandService>();
 builder.Services.AddScoped<IPermissionAssignmentCommandService, PermissionAssignmentCommandService>();
 builder.Services.AddScoped<IPermissionTypeCommandService, PermissionTypeCommandService>();
+builder.Services.AddScoped<IBeingCommandService, BeingCommandService>();
+builder.Services.AddScoped<IInventoryCommandService, InventoryCommandService>();
 
 
 builder.Services.AddScoped<IUserQueryServices, UserQueryService>();
@@ -145,6 +149,8 @@ builder.Services.AddScoped<ICompanyQueryService, CompanyQueryService>();
 builder.Services.AddScoped<IInvoiceQueryService, InvoiceQueryService>();
 builder.Services.AddScoped<IModuleQueryService, ModuleQueryService>();
 builder.Services.AddScoped<IUserCompanyQueryService, UserCompanyQueryService>();
+builder.Services.AddScoped<IBeingQueryService, BeingQueryService>();
+builder.Services.AddScoped<IInventoryQueryService, InventoryQueryService>();
 
 
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));

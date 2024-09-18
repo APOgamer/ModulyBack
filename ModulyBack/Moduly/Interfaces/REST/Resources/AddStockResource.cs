@@ -1,3 +1,8 @@
 ﻿namespace ModulyBack.Moduly.Interfaces.REST.Resources;
 
-public record AddStockResource(int Amount, Guid UserId);
+public class AddStockResource
+{
+    public Guid UserId { get; set; }
+    public Guid BeingId { get; set; }
+    public int Quantity { get; set; }
+}
