@@ -12,9 +12,6 @@ namespace ModulyBack.Moduly.Domain.Model.Entities
         public Guid ModuleId { get; set; }
 
         [Required]
-        public Guid BeingId { get; set; }
-
-        [Required]
         public int Quantity { get; set; }
 
         [Required]
@@ -40,9 +37,14 @@ namespace ModulyBack.Moduly.Domain.Model.Entities
 
         public int QuantityForReposition => MaximumStockLevel - Quantity;
 
-        public void UpdateStockStatus()
+        public void UpdateDetails(string name, string description, decimal unitPrice, int minimumStockLevel, int maximumStockLevel, int reorderPoint)
         {
+            // Asignar los valores nuevos a los campos del inventario
+            MinimumStockLevel = minimumStockLevel;
+            MaximumStockLevel = maximumStockLevel;
+            ReorderPoint = reorderPoint;
             IsInStock = Quantity > 0;
+            UpdatedAt = DateTime.UtcNow;
         }
 
         public void AddStock(int amount)
@@ -61,6 +63,11 @@ namespace ModulyBack.Moduly.Domain.Model.Entities
             Quantity -= amount;
             LastSaleDate = DateTime.UtcNow;
             UpdateStockStatus();
+        }
+
+        private void UpdateStockStatus()
+        {
+            IsInStock = Quantity > 0;
         }
     }
 }
