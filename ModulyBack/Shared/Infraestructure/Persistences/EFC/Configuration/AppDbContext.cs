@@ -16,7 +16,7 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
         public DbSet<User> Users { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
-        public DbSet<Module> Modules { get; set; }
+        public DbSet<Module?> Modules { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<UserCompany> UserCompanies { get; set; }
         public DbSet<Being> Beings { get; set; }

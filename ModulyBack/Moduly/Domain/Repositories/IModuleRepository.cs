@@ -11,4 +11,6 @@ public interface IModuleRepository : IBaseRepository<Module>
     Task AddAsync(Module module);
     Task UpdateAsync(Module module);
     Task RemoveAsync(Module module);
+    Task<Module?> GetFirstModuleByCompanyIdAsync(Guid companyId);
+
 }

@@ -36,7 +36,14 @@ public class UserCompanyPermissionRepository : BaseRepository<UserCompanyPermiss
                                         && ucp.PermissionType.PermissionTypeActions.Any(pt => pt.AllowedAction == permissionType)
                                         && ucp.IsGranted);
     }
-
+    public async Task<List<UserCompanyPermission>> GetByUserCompanyIdAndModuleIdAsync(Guid userCompanyId, Guid moduleId)
+    {
+        return await Context.UserCompanyPermissions
+            .Include(ucp => ucp.PermissionType)
+            .ThenInclude(pt => pt.PermissionTypeActions)
+            .Where(ucp => ucp.UserCompanyId == userCompanyId && ucp.ModuleId == moduleId && ucp.IsGranted)
+            .ToListAsync();
+    }
 
 
 }

@@ -21,4 +21,8 @@ public class PermissionTypeRepository : BaseRepository<PermissionType>, IPermiss
             .Where(pt => pt.CompanyId == companyId)
             .ToListAsync();
     }
+    public async Task<PermissionType?> GetByIdAsync(Guid id)
+    {
+        return await Context.Set<PermissionType>().FindAsync(id);
+    }
 }
