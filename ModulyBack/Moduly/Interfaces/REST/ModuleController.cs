@@ -66,9 +66,10 @@ namespace ModulyBack.Moduly.Interfaces.REST;
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteModule(Guid id,[FromBody]Guid Userid)
+        public async Task<ActionResult> DeleteModule(Guid id, [FromQuery] Guid userId)
         {
-            await _moduleCommandService.Handle(new DeleteModuleCommand(id, Userid));
+            await _moduleCommandService.Handle(new DeleteModuleCommand(id, userId));
             return NoContent();
         }
+
     }
