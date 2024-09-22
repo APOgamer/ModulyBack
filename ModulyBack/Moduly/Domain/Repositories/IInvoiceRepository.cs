@@ -8,6 +8,7 @@ namespace ModulyBack.Moduly.Domain.Repositories
         Task<Invoice?> FindByIdAsync(Guid id);
         Task<IEnumerable<Invoice>> ListAsync();
         Task<IEnumerable<Invoice>> FindByIssuerIdAsync(Guid issuerId);
+        Task<IEnumerable<Invoice>> FindByModuleIdAsync(Guid moduleId);
 
         
     }

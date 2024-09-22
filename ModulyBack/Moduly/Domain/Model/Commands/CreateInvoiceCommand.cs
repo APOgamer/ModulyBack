@@ -11,4 +11,7 @@ public record CreateInvoiceCommand(
     decimal UnitPrice,
     decimal TotalPayment,
     string Status,
-    Guid UserId);
+    Guid UserId,
+    decimal? exchangeRate = null,
+    DateTime? discountDate = null,
+    decimal? tcea = null);

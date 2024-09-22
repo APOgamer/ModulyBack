@@ -7,7 +7,6 @@ public static class CreateInvoiceCommandFromResourceAssembler
 {
     public static CreateInvoiceCommand ToCommandFromResource(CreateInvoiceResource resource)
     {
-        // Calcular el TotalPayment antes de invocar el constructor
         var totalPayment = resource.Quantity * resource.UnitPrice;
 
         return new CreateInvoiceCommand(
@@ -19,9 +18,12 @@ public static class CreateInvoiceCommandFromResourceAssembler
             resource.Description,
             resource.Quantity,
             resource.UnitPrice,
-            totalPayment, // Se añade este valor para que coincidan los parámetros
+            totalPayment,
             resource.Status,
-            resource.UserId
-            );
+            resource.UserId,
+            resource.ExchangeRate,
+            resource.DiscountDate,
+            resource.TCEA
+        );
     }
 }

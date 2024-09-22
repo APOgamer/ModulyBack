@@ -1,6 +1,4 @@
 ﻿using ModulyBack.Moduly.Domain.Model.Commands;
-using ModulyBack.Moduly.Domain.Model.Queries;
-using ModulyBack.Moduly.Domain.Services;
 using ModulyBack.Moduly.Interfaces.REST.Resources;
 
 namespace ModulyBack.Moduly.Interfaces.REST.Transform;
@@ -10,11 +8,10 @@ public static class UpdateInvoiceCommandFromResourceAssembler
     public static UpdateInvoiceCommand ToCommandFromResource(
         Guid invoiceId,
         UpdateInvoiceResource resource,
-        Guid moduleId,           // Se asume que este valor es proporcionado externamente
-        Guid? issuerId,         // Se asume que este valor es proporcionado externamente
-        DateTime issueDate)     // Se asume que este valor es proporcionado externamente
+        Guid moduleId,
+        Guid? issuerId,
+        DateTime issueDate)
     {
-        // Calcular el TotalPayment
         var totalPayment = resource.Quantity * resource.UnitPrice;
 
         return new UpdateInvoiceCommand(
@@ -29,7 +26,10 @@ public static class UpdateInvoiceCommandFromResourceAssembler
             resource.UnitPrice,
             totalPayment,
             resource.Status,
-            resource.UserCompanyId
+            resource.UserCompanyId,
+            resource.ExchangeRate,
+            resource.DiscountDate,
+            resource.TCEA
         );
     }
 }

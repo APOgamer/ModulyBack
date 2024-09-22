@@ -113,4 +113,31 @@ public class CompanyController : ControllerBase
         var employeeResources = userCompanies.Select(UserCompanyResourceFromEntityAssembler.ToResourceFromEntity);
         return Ok(employeeResources);
     }
+
+    [HttpPost("{companyId}/banks")]
+    public async Task<IActionResult> CreateBank(Guid companyId, [FromBody] CreateBankResource resource)
+    {
+        if (resource == null)
+        {
+            return BadRequest("Invalid data.");
+        }
+
+        try
+        {
+            var command = CreateBankCommandFromResourceAssembler.ToCommandFromResource(companyId, resource);
+            var createdBank = await _companyCommandService.CreateBank(command);
+
+            var bankResource = new { Id = createdBank.Id, createdBank.Name, createdBank.TCEA };
+            return CreatedAtAction(nameof(GetCompanyById), new { id = companyId }, bankResource);
+        }
+        catch (Exception ex) when (ex.Message == "Company not found")
+        {
+            return NotFound($"Company with ID {companyId} not found.");
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            return StatusCode(500, $"An error occurred while creating the bank: {ex.Message}");
+        }
+    }
 }

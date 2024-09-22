@@ -16,4 +16,7 @@ public class InvoiceRepository(AppDbContext _context) : BaseRepository<Invoice>(
 
     public async Task<IEnumerable<Invoice>> FindByIssuerIdAsync(Guid issuerId) =>
         await _context.Set<Invoice>().Where(i => i.IssuerId == issuerId).ToListAsync();
+
+    public async Task<IEnumerable<Invoice>> FindByModuleIdAsync(Guid moduleId) =>
+        await _context.Set<Invoice>().Where(i => i.ModuleId == moduleId).ToListAsync();
 }

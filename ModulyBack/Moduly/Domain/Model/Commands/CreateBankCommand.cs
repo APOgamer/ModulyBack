@@ -1,0 +1,1 @@
+public record CreateBankCommand(Guid CompanyId, string Name, decimal TCEA);

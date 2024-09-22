@@ -1,11 +1,22 @@
-﻿namespace ModulyBack.Moduly.Interfaces.REST;
-
-using Microsoft.AspNetCore.Mvc;
-using ModulyBack.Moduly.Domain.Model.Commands;
+﻿using ModulyBack.Moduly.Domain.Model.Commands;
 using ModulyBack.Moduly.Domain.Model.Queries;
+using ModulyBack.Moduly.Domain.Model.ValueObjects;
+using ModulyBack.Moduly.Domain.Repositories;
 using ModulyBack.Moduly.Domain.Services;
 using ModulyBack.Moduly.Interfaces.REST.Resources;
 using ModulyBack.Moduly.Interfaces.REST.Transform;
+
+namespace ModulyBack.Moduly.Interfaces.REST;
+
+using Microsoft.AspNetCore.Mvc;
+
+using ModulyBack.Moduly.Interfaces.REST.Resources;
+using ModulyBack.Moduly.Interfaces.REST.Transform;
+
+using ModulyBack.Moduly.Domain.Model.Commands;
+using ModulyBack.Moduly.Domain.Model.Queries;
+using ModulyBack.Moduly.Domain.Services;
+
 
 
 [ApiController]
@@ -16,17 +27,20 @@ public class InvoiceController : ControllerBase
         private readonly IInvoiceQueryService _invoiceQueryService;
         private readonly IUserCompanyQueryService _userCompanyQueryService;
         private readonly ICompanyQueryService _companyQueryService;
+        private readonly IUserCompanyPermissionRepository _userCompanyPermissionRepository;
 
         public InvoiceController(
             IInvoiceCommandService invoiceCommandService, 
             IInvoiceQueryService invoiceQueryService,
             IUserCompanyQueryService userCompanyQueryService,
-            ICompanyQueryService companyQueryService)
+            ICompanyQueryService companyQueryService,
+            IUserCompanyPermissionRepository userCompanyPermissionRepository)
         {
             _invoiceCommandService = invoiceCommandService;
             _invoiceQueryService = invoiceQueryService;
             _userCompanyQueryService = userCompanyQueryService;
             _companyQueryService = companyQueryService;
+            _userCompanyPermissionRepository = userCompanyPermissionRepository;
         }
 
  [HttpPost]
@@ -36,24 +50,24 @@ public class InvoiceController : ControllerBase
 
             try
             {
-                // Obtener el UserCompanyId
+                // First, verify if the user is the creator of the company
+                var company = await _companyQueryService.Handle(new GetCompanyByModuleIdQuery(createInvoiceCommand.ModuleId));
+                if (company != null && company.CreatedById == createInvoiceCommand.UserId)
+                {
+                    // The user is the creator, has automatic permission
+                    var creatorInvoice = await _invoiceCommandService.Handle(createInvoiceCommand);
+                    var creatorResource = InvoiceResourceFromEntityAssembler.ToResourceFromEntity(creatorInvoice);
+                    return CreatedAtAction(nameof(GetInvoiceById), new { invoiceId = creatorResource.Id }, creatorResource);
+                }
+
+                // If not the creator, then check for UserCompanyId
                 var userCompanyId = await _userCompanyQueryService.FindUserCompanyIdByUserId(createInvoiceCommand.UserId);
                 if (!userCompanyId.HasValue)
                 {
                     return Forbid("User is not associated with any company.");
                 }
 
-                // Verificar si el usuario es el creador de la compañía
-                var company = await _companyQueryService.Handle(new GetCompanyByModuleIdQuery(createInvoiceCommand.ModuleId));
-                if (company != null && company.CreatedById == createInvoiceCommand.UserId)
-                {
-                    // El usuario es el creador, tiene permiso automático
-                    var creatorInvoice = await _invoiceCommandService.Handle(createInvoiceCommand);
-                    var creatorResource = InvoiceResourceFromEntityAssembler.ToResourceFromEntity(creatorInvoice);
-                    return CreatedAtAction(nameof(GetInvoiceById), new { invoiceId = creatorResource.Id }, creatorResource);
-                }
-
-                // Si no es el creador, la verificación de permisos se hará en el InvoiceCommandService
+                // If not the creator, permission verification will be done in the InvoiceCommandService
                 var regularInvoice = await _invoiceCommandService.Handle(createInvoiceCommand);
 
                 if (regularInvoice is null) return BadRequest();
@@ -166,5 +180,45 @@ public class InvoiceController : ControllerBase
         return Ok(resource);
     }
 
+    [HttpGet("byModule/{moduleId:guid}")]
+    public async Task<IActionResult> GetInvoicesByModule([FromRoute] Guid moduleId, [FromQuery] Guid userId)
+    {
+        try
+        {
+            var company = await _companyQueryService.Handle(new GetCompanyByModuleIdQuery(moduleId));
+            if (company == null)
+            {
+                return NotFound("Company not found for this module.");
+            }
 
+            if (company.CreatedById == userId)
+            {
+                // User is the creator, skip permission check
+                var creatorInvoices = await _invoiceQueryService.Handle(new GetInvoicesByModuleQuery(moduleId));
+                var creatorResources = creatorInvoices.Select(InvoiceResourceFromEntityAssembler.ToResourceFromEntity);
+                return Ok(creatorResources);
+            }
+
+            var userCompanyId = await _userCompanyQueryService.FindUserCompanyIdByUserId(userId);
+            if (!userCompanyId.HasValue)
+            {
+                return Forbid("User is not associated with any company.");
+            }
+
+            var userPermission = await _userCompanyPermissionRepository
+                .FindByUserCompanyAndPermissionTypeInModuleAsync(userCompanyId.Value, moduleId, AllowedActionEnum.VIEW_INVOICE);
+
+            if (userPermission == null)
+                return Forbid($"User does not have permission to view invoices in this module.");
+
+            var query = new GetInvoicesByModuleQuery(moduleId);
+            var regularInvoices = await _invoiceQueryService.Handle(query);
+            var regularResources = regularInvoices.Select(InvoiceResourceFromEntityAssembler.ToResourceFromEntity);
+            return Ok(regularResources);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while retrieving invoices: {ex.Message}");
+        }
+    }
 }

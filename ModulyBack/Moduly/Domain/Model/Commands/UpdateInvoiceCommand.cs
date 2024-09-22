@@ -12,6 +12,9 @@ public record UpdateInvoiceCommand(
     decimal UnitPrice,
     decimal TotalPayment,
     string Status,
-    Guid UserCompanyId
+    Guid UserCompanyId,
+    decimal? exchangeRate = null,
+    DateTime? discountDate = null,
+    decimal? tcea = null
 );
 

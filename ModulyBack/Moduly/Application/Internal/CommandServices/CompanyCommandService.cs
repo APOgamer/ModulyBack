@@ -151,5 +151,26 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
 
             return existingCompany;
         }
+
+        public async Task<Bank> CreateBank(CreateBankCommand command)
+        {
+            var company = await _companyRepository.FindByIdAsync(command.CompanyId);
+            if (company == null)
+                throw new Exception("Company not found");
+
+            var bank = new Bank
+            {
+                Id = Guid.NewGuid(),
+                Name = command.Name,
+                TCEA = command.TCEA,
+                CompanyId = command.CompanyId
+            };
+
+            company.Banks.Add(bank);
+            await _companyRepository.UpdateAsync(company);
+            await _unitOfWork.CompleteAsync();
+
+            return bank;
+        }
     }
 }

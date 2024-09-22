@@ -1,5 +1,4 @@
-﻿
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -129,8 +128,6 @@ builder.Services.AddScoped<IBeingRepository, BeingRepository>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 
 
-
-
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IHashingService, HashingService>();
 
@@ -158,6 +155,8 @@ builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("Toke
 
 // Register additional repositories and services here
 
+builder.Services.AddScoped<IBankRepository, BankRepository>();
+
 var app = builder.Build();
 
 // VERIFY DATABASE OBJECTS ARE CREATED
@@ -181,6 +180,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
