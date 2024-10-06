@@ -19,6 +19,7 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
         private readonly IPermissionTypeRepository _permissionTypeRepository;
         private readonly IUserCompanyPermissionRepository _userCompanyPermissionRepository;
         private readonly IModuleRepository _moduleRepository;
+        private readonly IBankRepository _bankRepository;
 
         public CompanyCommandService(
             ICompanyRepository companyRepository, 
@@ -26,7 +27,8 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             IUserCompanyRepository userCompanyRepository,
             IPermissionTypeRepository permissionTypeRepository,
             IUserCompanyPermissionRepository userCompanyPermissionRepository,
-            IModuleRepository moduleRepository)
+            IModuleRepository moduleRepository,
+            IBankRepository bankRepository)
         {
             _companyRepository = companyRepository;
             _unitOfWork = unitOfWork;
@@ -34,6 +36,7 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             _permissionTypeRepository = permissionTypeRepository;
             _userCompanyPermissionRepository = userCompanyPermissionRepository;
             _moduleRepository = moduleRepository;
+            _bankRepository = bankRepository;
         }
 
         public async Task<Guid> Handle(CreateCompanyCommand command)
@@ -162,12 +165,17 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             {
                 Id = Guid.NewGuid(),
                 Name = command.Name,
-                TCEA = command.TCEA,
-                CompanyId = command.CompanyId
+                CompanyId = command.CompanyId,
+                AccountNumber = command.AccountNumber,
+                IBAN = command.IBAN,
+                SWIFT = command.SWIFT,
+                AccountHolderName = command.AccountHolderName,
+                AccountType = command.AccountType,
+                BankAddress = command.BankAddress,
+                PaymentReference = command.PaymentReference
             };
 
-            company.Banks.Add(bank);
-            await _companyRepository.UpdateAsync(company);
+            await _bankRepository.AddAsync(bank);
             await _unitOfWork.CompleteAsync();
 
             return bank;

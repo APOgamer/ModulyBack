@@ -126,6 +126,7 @@ builder.Services.AddScoped<IUserCompanyPermissionRepository, UserCompanyPermissi
 builder.Services.AddScoped<IPermissionTypeRepository, PermissionTypeRepository>();
 builder.Services.AddScoped<IBeingRepository, BeingRepository>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
+builder.Services.AddScoped<IBankRepository, BankRepository>();
 
 
 builder.Services.AddScoped<ITokenService, TokenService>();

@@ -7,17 +7,30 @@ public static class CompanyResourceFromEntityAssembler
 {
     public static CompanyResource ToResourceFromEntity(Company company)
     {
-        return new CompanyResource(
-            company.Id,
-            company.CompanyName,
-            company.LegalName,
-            company.Ruc,
-            company.Address,
-            company.Email,
-            company.Password,
-            company.Banks.Select(b => new BankResource(b.Id, b.Name, b.TCEA))
-        );
+        return new CompanyResource
+        {
+            Id = company.Id,
+            CompanyName = company.CompanyName,
+            LegalName = company.LegalName,
+            Ruc = company.Ruc,
+            Address = company.Address,
+            Email = company.Email,
+            Password = company.Password,
+            CreatedById = company.CreatedById,
+            Banks = company.Banks.Select(b => new BankResource(
+                b.Id,
+                b.Name,
+                b.AccountNumber,
+                b.IBAN,
+                b.SWIFT,
+                b.AccountHolderName,
+                b.AccountType,
+                b.BankAddress,
+                b.PaymentReference
+            )).ToList() // Convertimos la selección a una lista
+        };
     }
+
 
     public static Company ToEntityFromResource(CompanyResource companyResource)
     {

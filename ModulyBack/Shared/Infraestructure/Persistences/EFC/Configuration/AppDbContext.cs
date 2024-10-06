@@ -212,7 +212,14 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
             {
                 entity.HasKey(b => b.Id);
                 entity.Property(b => b.Name).IsRequired();
-                entity.Property(b => b.TCEA).IsRequired();
+                entity.Property(b => b.CompanyId).IsRequired();
+                entity.Property(b => b.AccountNumber).IsRequired(false);
+                entity.Property(b => b.IBAN).IsRequired(false);
+                entity.Property(b => b.SWIFT).IsRequired(false);
+                entity.Property(b => b.AccountHolderName).IsRequired(false);
+                entity.Property(b => b.AccountType).IsRequired(false);
+                entity.Property(b => b.BankAddress).IsRequired(false);
+                entity.Property(b => b.PaymentReference).IsRequired(false);
                 entity.HasOne(b => b.Company)
                     .WithMany(c => c.Banks)
                     .HasForeignKey(b => b.CompanyId)

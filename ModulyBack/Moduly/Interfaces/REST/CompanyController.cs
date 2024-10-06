@@ -4,6 +4,7 @@ using ModulyBack.Moduly.Domain.Model.Commands;
 using ModulyBack.Moduly.Domain.Model.Queries;
 using ModulyBack.Moduly.Domain.Services;
 using ModulyBack.Moduly.Interfaces.REST.Transform;
+using ModulyBack.Moduly.Interfaces.REST.Resources;
 
 namespace ModulyBack.Moduly.Interfaces;
 
@@ -127,7 +128,8 @@ public class CompanyController : ControllerBase
             var command = CreateBankCommandFromResourceAssembler.ToCommandFromResource(companyId, resource);
             var createdBank = await _companyCommandService.CreateBank(command);
 
-            var bankResource = new { Id = createdBank.Id, createdBank.Name, createdBank.TCEA };
+            var bankResource = BankResourceFromEntityAssembler.ToResourceFromEntity(createdBank);
+
             return CreatedAtAction(nameof(GetCompanyById), new { id = companyId }, bankResource);
         }
         catch (Exception ex) when (ex.Message == "Company not found")
