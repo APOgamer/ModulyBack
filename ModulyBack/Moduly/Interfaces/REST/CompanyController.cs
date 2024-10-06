@@ -40,7 +40,7 @@ public class CompanyController : ControllerBase
         var companyResource = CompanyResourceFromEntityAssembler.ToResourceFromEntity(company);
         return Ok(companyResource);
     }
-
+    
     [HttpPost]
     public async Task<IActionResult> CreateCompany([FromBody] CreateCompanyCommand command)
     {

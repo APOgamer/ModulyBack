@@ -1,5 +1,5 @@
 ﻿using ModulyBack.Moduly.Domain.Model.Entities;
-using ModulyBack.Moduly.Interfaces.Resources;
+using ModulyBack.Moduly.Interfaces.REST.Resources;
 
 namespace ModulyBack.Moduly.Interfaces.REST.Transform;
 
@@ -7,9 +7,6 @@ public static class CompanyResourceFromEntityAssembler
 {
     public static CompanyResource ToResourceFromEntity(Company company)
     {
-        if (company == null)
-            throw new ArgumentNullException(nameof(company));
-
         return new CompanyResource(
             company.Id,
             company.CompanyName,
@@ -17,7 +14,8 @@ public static class CompanyResourceFromEntityAssembler
             company.Ruc,
             company.Address,
             company.Email,
-            company.Password
+            company.Password,
+            company.Banks.Select(b => new BankResource(b.Id, b.Name, b.TCEA))
         );
     }
 

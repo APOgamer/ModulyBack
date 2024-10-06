@@ -1,4 +1,4 @@
-﻿namespace ModulyBack.Moduly.Interfaces.Resources;
+﻿namespace ModulyBack.Moduly.Interfaces.REST.Resources;
 
 public record CompanyResource(
     Guid Id,
@@ -7,5 +7,12 @@ public record CompanyResource(
     string Ruc,
     string Address,
     string Email,
-    string Password
+    string Password,
+    IEnumerable<BankResource> Banks
+);
+
+public record BankResource(
+    Guid Id,
+    string Name,
+    decimal TCEA
 );
