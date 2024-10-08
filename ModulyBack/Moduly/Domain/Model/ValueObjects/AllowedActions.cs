@@ -29,6 +29,7 @@
         VIEW_INVENTORY,   // Added
         NONE,
         ADMIN,
-        EDIT_ESPECIFIC_MODULE
+        EDIT_ESPECIFIC_MODULE,
+        SEND_INVITATIONS
     }
 }

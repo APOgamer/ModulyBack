@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ModulyBack.Moduly.Domain.Model.Commands;
 using ModulyBack.Moduly.Domain.Model.Queries;
+using ModulyBack.Moduly.Domain.Model.ValueObjects;
 using ModulyBack.Moduly.Domain.Services;
 using ModulyBack.Moduly.Interfaces.REST.Transform;
 using ModulyBack.Moduly.Interfaces.REST.Resources;
@@ -15,11 +16,19 @@ public class CompanyController : ControllerBase
 {
     private readonly ICompanyCommandService _companyCommandService;
     private readonly ICompanyQueryService _companyQueryService;
+    private readonly IInvitationCommandService _invitationCommandService;
+    private readonly IInvitationQueryService _invitationQueryService;
 
-    public CompanyController(ICompanyCommandService companyCommandService, ICompanyQueryService companyQueryService)
+    public CompanyController(
+        ICompanyCommandService companyCommandService, 
+        ICompanyQueryService companyQueryService,
+        IInvitationCommandService invitationCommandService,
+        IInvitationQueryService invitationQueryService)
     {
         _companyCommandService = companyCommandService;
         _companyQueryService = companyQueryService;
+        _invitationCommandService = invitationCommandService;
+        _invitationQueryService = invitationQueryService;
     }
 
     [HttpGet]   
@@ -141,5 +150,83 @@ public class CompanyController : ControllerBase
             // Log the exception
             return StatusCode(500, $"An error occurred while creating the bank: {ex.Message}");
         }
+    }
+    [HttpPost("invitations")]
+    public async Task<IActionResult> CreateInvitation([FromBody] CreateInvitationResource createInvitationResource)
+    {
+        var createInvitationCommand = CreateInvitationCommandFromResourceAssembler.ToCommandFromResource(createInvitationResource);
+
+        try
+        {
+            // Verificar si el usuario es el creador de la compañía o tiene permisos
+            var company = await _companyQueryService.Handle(new GetCompanyByIdQuery(createInvitationCommand.CompanyId));
+            if (company == null)
+            {
+                return NotFound($"Company with ID {createInvitationCommand.CompanyId} not found.");
+            }
+
+            if (company.CreatedById != createInvitationCommand.TransmitterId)
+            {
+                // Verificar permisos si no es el creador
+                var hasPermission = await _companyQueryService.Handle(new CheckUserPermissionQuery(
+                    createInvitationCommand.TransmitterId, 
+                    createInvitationCommand.CompanyId, 
+                    AllowedActionEnum.SEND_INVITATIONS));
+
+                if (!hasPermission)
+                {
+                    return Forbid("User does not have permission to send invitations for this company.");
+                }
+            }
+
+            var createdInvitation = await _invitationCommandService.Handle(createInvitationCommand);
+            var invitationResource = InvitationResourceFromEntityAssembler.ToResourceFromEntity(createdInvitation);
+            return CreatedAtAction(nameof(GetInvitationById), new { id = invitationResource.Id }, invitationResource);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            return StatusCode(500, $"An error occurred while creating the invitation: {ex.Message}");
+        }
+    }
+    [HttpPut("invitations/{id}/status")]
+    public async Task<IActionResult> UpdateInvitationStatus(Guid id, [FromBody] UpdateInvitationStatusResource updateStatusResource)
+    {
+        var updateStatusCommand = new UpdateInvitationStatusCommand(id, updateStatusResource.Status);
+
+        try
+        {
+            var updatedInvitation = await _invitationCommandService.Handle(updateStatusCommand);
+            
+            if (updatedInvitation == null)
+            {
+                return NotFound($"Invitation with ID {id} not found.");
+            }
+
+            var invitationResource = InvitationResourceFromEntityAssembler.ToResourceFromEntity(updatedInvitation);
+            return Ok(invitationResource);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            return StatusCode(500, $"An error occurred while updating the invitation status: {ex.Message}");
+        }
+    }
+
+    [HttpGet("invitations/{id}")]
+    public async Task<IActionResult> GetInvitationById(Guid id)
+    {
+        var query = new GetInvitationByIdQuery(id);
+        var invitation = await _invitationQueryService.Handle(query);
+
+        if (invitation == null)
+            return NotFound();
+
+        var invitationResource = InvitationResourceFromEntityAssembler.ToResourceFromEntity(invitation);
+        return Ok(invitationResource);
     }
 }
