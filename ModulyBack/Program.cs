@@ -127,6 +127,9 @@ builder.Services.AddScoped<IPermissionTypeRepository, PermissionTypeRepository>(
 builder.Services.AddScoped<IBeingRepository, BeingRepository>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IBankRepository, BankRepository>();
+builder.Services.AddScoped<IUserCompanyPermissionsRepository, UserCompanyPermissionsRepository>();
+builder.Services.AddScoped<IPermissionTypeRepository, PermissionTypeRepository>();
+
 
 
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -141,7 +144,8 @@ builder.Services.AddScoped<IPermissionTypeCommandService, PermissionTypeCommandS
 builder.Services.AddScoped<IBeingCommandService, BeingCommandService>();
 builder.Services.AddScoped<IInventoryCommandService, InventoryCommandService>();
 
-
+builder.Services.AddScoped<IUserCompanyPermissionsQueryService, UserCompanyPermissionsQueryService>();
+builder.Services.AddScoped<IPermissionTypeQueryService, PermissionTypeQueryService>();
 builder.Services.AddScoped<IUserQueryServices, UserQueryService>();
 builder.Services.AddScoped<ICompanyQueryService, CompanyQueryService>();
 builder.Services.AddScoped<IInvoiceQueryService, InvoiceQueryService>();

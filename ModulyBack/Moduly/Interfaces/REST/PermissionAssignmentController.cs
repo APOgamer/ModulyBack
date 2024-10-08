@@ -14,19 +14,68 @@ public class PermissionAssignmentController : ControllerBase
     private readonly ICompanyQueryService _companyQueryService;
     private readonly IUserCompanyQueryService _userCompanyQueryService;
     private readonly IPermissionTypeCommandService _permissionTypeCommandService;
+    private readonly IUserCompanyPermissionsQueryService _userCompanyPermissionsQueryService;
+    private readonly IPermissionTypeQueryService _permissionTypeQueryService;
 
     public PermissionAssignmentController(
         IPermissionAssignmentCommandService permissionAssignmentCommandService,
         IPermissionTypeCommandService permissionTypeCommandService,
         ICompanyQueryService companyQueryService,
-        IUserCompanyQueryService userCompanyQueryService)
+        IUserCompanyQueryService userCompanyQueryService,
+        IUserCompanyPermissionsQueryService userCompanyPermissionsQueryService,
+        IPermissionTypeQueryService permissionTypeQueryService)
     {
         _permissionAssignmentCommandService = permissionAssignmentCommandService;
         _permissionTypeCommandService = permissionTypeCommandService;
         _companyQueryService = companyQueryService;
         _userCompanyQueryService = userCompanyQueryService;
+        _userCompanyPermissionsQueryService = userCompanyPermissionsQueryService;
+        _permissionTypeQueryService = permissionTypeQueryService;
     }
+    [HttpGet("{userCompanyId:guid}")]
+    public async Task<IActionResult> GetPermissionsByUserCompany(Guid userCompanyId)
+    {
+        try
+        {
+            // Obtener las entradas de UserCompanyPermissions por UserCompanyId
+            var userPermissions = await _userCompanyPermissionsQueryService.GetPermissionsByUserCompanyIdAsync(userCompanyId);
 
+            if (userPermissions == null || userPermissions.Count == 0)
+            {
+                return NotFound("No permissions found for this user.");
+            }
+
+            // Crear una lista para devolver los resultados
+            var permissionResults = new List<object>();
+
+            // Recorrer los permisos y obtener el tipo de permiso correspondiente
+            foreach (var permission in userPermissions)
+            {
+                var permissionType = await _permissionTypeQueryService.GetPermissionTypeByIdAsync(permission.PermissionTypeId);
+
+                if (permissionType != null)
+                {
+                    permissionResults.Add(new 
+                    {
+                        ModuleId = permission.ModuleId,
+                        PermissionType = new
+                        {
+                            Id = permissionType.Id,
+                            Name = permissionType.Name,
+                            Description = permissionType.Description
+                        },
+                        IsGranted = permission.IsGranted
+                    });
+                }
+            }
+
+            return Ok(permissionResults);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while retrieving permissions: {ex.Message}");
+        }
+    }
     [HttpPost("assign")]
     public async Task<IActionResult> AssignPermission([FromBody] AssignPermissionResource assignPermissionResource)
     {

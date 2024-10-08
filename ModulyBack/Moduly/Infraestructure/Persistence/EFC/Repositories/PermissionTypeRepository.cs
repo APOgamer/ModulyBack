@@ -25,4 +25,9 @@ public class PermissionTypeRepository : BaseRepository<PermissionType>, IPermiss
     {
         return await Context.Set<PermissionType>().FindAsync(id);
     }
+    public async Task<PermissionType?> FindByIdAsync(Guid permissionTypeId)
+    {
+        return await Context.PermissionTypes
+            .FirstOrDefaultAsync(pt => pt.Id == permissionTypeId);
+    }
 }
