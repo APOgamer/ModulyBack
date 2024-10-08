@@ -8,4 +8,5 @@ public interface ICompanyCommandService
 {
     Task<Guid> Handle(CreateCompanyCommand command);
     Task<Company> Handle(UpdateCompanyCommand command);
+    Task<Bank> CreateBank(CreateBankCommand command);
 }

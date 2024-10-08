@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+namespace ModulyBack.Moduly.Interfaces.REST.Resources;
+
 public class CreateInvoiceResource
 {
     [Required(ErrorMessage = "The Code field is required.")]
@@ -29,4 +31,12 @@ public class CreateInvoiceResource
 
     [Required(ErrorMessage = "The UserId field is required.")]
     public Guid UserId { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "Exchange Rate must be a non-negative value.")]
+    public decimal ExchangeRate { get; set; }
+
+    public DateTime? DiscountDate { get; set; }
+
+    [Range(0, double.MaxValue, ErrorMessage = "TCEA must be a non-negative value.")]
+    public decimal TCEA { get; set; }
 }

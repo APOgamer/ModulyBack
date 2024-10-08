@@ -28,6 +28,7 @@
         DELETE_INVENTORY, // Added
         VIEW_INVENTORY,   // Added
         NONE,
-        ADMIN
+        ADMIN,
+        EDIT_ESPECIFIC_MODULE
     }
 }

@@ -1,5 +1,4 @@
-﻿
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -127,7 +126,9 @@ builder.Services.AddScoped<IUserCompanyPermissionRepository, UserCompanyPermissi
 builder.Services.AddScoped<IPermissionTypeRepository, PermissionTypeRepository>();
 builder.Services.AddScoped<IBeingRepository, BeingRepository>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
-
+builder.Services.AddScoped<IBankRepository, BankRepository>();
+builder.Services.AddScoped<IUserCompanyPermissionsRepository, UserCompanyPermissionsRepository>();
+builder.Services.AddScoped<IPermissionTypeRepository, PermissionTypeRepository>();
 
 
 
@@ -143,7 +144,8 @@ builder.Services.AddScoped<IPermissionTypeCommandService, PermissionTypeCommandS
 builder.Services.AddScoped<IBeingCommandService, BeingCommandService>();
 builder.Services.AddScoped<IInventoryCommandService, InventoryCommandService>();
 
-
+builder.Services.AddScoped<IUserCompanyPermissionsQueryService, UserCompanyPermissionsQueryService>();
+builder.Services.AddScoped<IPermissionTypeQueryService, PermissionTypeQueryService>();
 builder.Services.AddScoped<IUserQueryServices, UserQueryService>();
 builder.Services.AddScoped<ICompanyQueryService, CompanyQueryService>();
 builder.Services.AddScoped<IInvoiceQueryService, InvoiceQueryService>();
@@ -157,6 +159,8 @@ builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("Toke
 
 
 // Register additional repositories and services here
+
+builder.Services.AddScoped<IBankRepository, BankRepository>();
 
 var app = builder.Build();
 
@@ -181,6 +185,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

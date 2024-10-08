@@ -31,9 +31,10 @@ namespace ModulyBack.Moduly.Domain.Model.Entities
 
         public DateTime CreationDate { get; set; } = DateTime.UtcNow;
         [Required]
-        public Guid? CreatedById { get; set; }
+        public Guid CreatedById { get; set; }
 
         public ICollection<UserCompany> UserCompanies { get; set; } = new List<UserCompany>();
         public ICollection<Module> Modules { get; set; } = new List<Module>();
+        public ICollection<Bank> Banks { get; set; } = new List<Bank>();
     }
 }

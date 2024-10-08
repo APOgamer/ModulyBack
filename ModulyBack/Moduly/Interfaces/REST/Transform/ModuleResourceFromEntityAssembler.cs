@@ -1,5 +1,4 @@
 ﻿using ModulyBack.Moduly.Domain.Model.Entities;
-using ModulyBack.Moduly.Interfaces.Resources;
 using ModulyBack.Moduly.Interfaces.REST.Resources;
 
 namespace ModulyBack.Moduly.Interfaces.REST.Transform;

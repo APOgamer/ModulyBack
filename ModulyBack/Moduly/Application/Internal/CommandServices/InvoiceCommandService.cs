@@ -70,7 +70,10 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
                 Quantity = command.Quantity,
                 UnitPrice = command.UnitPrice,
                 TotalPayment = command.TotalPayment,
-                Status = command.Status
+                Status = command.Status,
+                ExchangeRate = command.exchangeRate,
+                DiscountDate = command.discountDate,
+                TCEA = command.tcea
             };
 
             await _invoiceRepository.AddAsync(invoice);
@@ -101,6 +104,9 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             existingInvoice.UnitPrice = command.UnitPrice;
             existingInvoice.TotalPayment = command.TotalPayment;
             existingInvoice.Status = command.Status;
+            existingInvoice.ExchangeRate = command.exchangeRate;
+            existingInvoice.DiscountDate = command.discountDate;
+            existingInvoice.TCEA = command.tcea;
 
             await _invoiceRepository.UpdateAsync(existingInvoice);
             await _unitOfWork.CompleteAsync();
@@ -112,7 +118,26 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             var invoice = await _invoiceRepository.FindByIdAsync(command.InvoiceId);
             if (invoice == null)
                 throw new Exception("Invoice not found");
-            
+
+            // Get the company associated with the invoice's module
+            var company = await _companyRepository.FindByModuleIdAsync(invoice.ModuleId);
+            if (company == null)
+                throw new Exception("Company not found for this invoice's module");
+
+            // Check if the user is the company creator
+            var userCompany = await _userCompanyRepository.FindByIdAsync(command.UserCompanyId);
+            if (userCompany == null)
+                throw new Exception("UserCompany not found");
+
+            if (company.CreatedById == userCompany.UserId)
+            {
+                // User is the creator, skip permission check
+                await _invoiceRepository.DeleteAsync(invoice.Id);
+                await _unitOfWork.CompleteAsync();
+                return;
+            }
+
+            // If not the creator, proceed with the regular permission check
             var userPermission = await _userCompanyPermissionRepository
                 .FindByUserCompanyAndPermissionTypeInModuleAsync(command.UserCompanyId, invoice.ModuleId, AllowedActionEnum.DELETE_INVOICE);
 
@@ -130,6 +155,26 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             if (invoice == null)
                 throw new Exception("Invoice not found");
 
+            // Get the company associated with the invoice's module
+            var company = await _companyRepository.FindByModuleIdAsync(invoice.ModuleId);
+            if (company == null)
+                throw new Exception("Company not found for this invoice's module");
+
+            // Check if the user is the company creator
+            var userCompany = await _userCompanyRepository.FindByIdAsync(command.UserCompanyId);
+            if (userCompany == null)
+                throw new Exception("UserCompany not found");
+
+            if (company.CreatedById == userCompany.UserId)
+            {
+                // User is the creator, skip permission check
+                invoice.Status = command.Status;
+                await _invoiceRepository.UpdateAsync(invoice);
+                await _unitOfWork.CompleteAsync();
+                return invoice;
+            }
+
+            // If not the creator, proceed with the regular permission check
             var userPermission = await _userCompanyPermissionRepository
                 .FindByUserCompanyAndPermissionTypeInModuleAsync(command.UserCompanyId, invoice.ModuleId, AllowedActionEnum.EDIT_INVOICE);
 

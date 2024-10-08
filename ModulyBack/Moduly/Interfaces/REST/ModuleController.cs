@@ -2,7 +2,6 @@
 using ModulyBack.Moduly.Domain.Model.Commands;
 using ModulyBack.Moduly.Domain.Model.Queries;
 using ModulyBack.Moduly.Domain.Services;
-using ModulyBack.Moduly.Interfaces.Resources;
 using ModulyBack.Moduly.Interfaces.REST.Resources;
 using ModulyBack.Moduly.Interfaces.REST.Transform;
 

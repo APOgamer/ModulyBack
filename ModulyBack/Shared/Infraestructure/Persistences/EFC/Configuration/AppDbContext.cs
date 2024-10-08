@@ -29,6 +29,8 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<InventoryItem> InventoryItems { get; set; }
 
+        public DbSet<Bank> Banks { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
             builder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
@@ -202,6 +204,25 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
                 entity.HasOne(ii => ii.Being)
                     .WithMany()
                     .HasForeignKey(ii => ii.BeingId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Bank Entity
+            builder.Entity<Bank>(entity =>
+            {
+                entity.HasKey(b => b.Id);
+                entity.Property(b => b.Name).IsRequired();
+                entity.Property(b => b.CompanyId).IsRequired();
+                entity.Property(b => b.AccountNumber).IsRequired(false);
+                entity.Property(b => b.IBAN).IsRequired(false);
+                entity.Property(b => b.SWIFT).IsRequired(false);
+                entity.Property(b => b.AccountHolderName).IsRequired(false);
+                entity.Property(b => b.AccountType).IsRequired(false);
+                entity.Property(b => b.BankAddress).IsRequired(false);
+                entity.Property(b => b.PaymentReference).IsRequired(false);
+                entity.HasOne(b => b.Company)
+                    .WithMany(c => c.Banks)
+                    .HasForeignKey(b => b.CompanyId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

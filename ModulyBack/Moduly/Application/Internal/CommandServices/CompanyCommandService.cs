@@ -19,6 +19,7 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
         private readonly IPermissionTypeRepository _permissionTypeRepository;
         private readonly IUserCompanyPermissionRepository _userCompanyPermissionRepository;
         private readonly IModuleRepository _moduleRepository;
+        private readonly IBankRepository _bankRepository;
 
         public CompanyCommandService(
             ICompanyRepository companyRepository, 
@@ -26,7 +27,8 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             IUserCompanyRepository userCompanyRepository,
             IPermissionTypeRepository permissionTypeRepository,
             IUserCompanyPermissionRepository userCompanyPermissionRepository,
-            IModuleRepository moduleRepository)
+            IModuleRepository moduleRepository,
+            IBankRepository bankRepository)
         {
             _companyRepository = companyRepository;
             _unitOfWork = unitOfWork;
@@ -34,6 +36,7 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             _permissionTypeRepository = permissionTypeRepository;
             _userCompanyPermissionRepository = userCompanyPermissionRepository;
             _moduleRepository = moduleRepository;
+            _bankRepository = bankRepository;
         }
 
         public async Task<Guid> Handle(CreateCompanyCommand command)
@@ -150,6 +153,32 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             await _unitOfWork.CompleteAsync();
 
             return existingCompany;
+        }
+
+        public async Task<Bank> CreateBank(CreateBankCommand command)
+        {
+            var company = await _companyRepository.FindByIdAsync(command.CompanyId);
+            if (company == null)
+                throw new Exception("Company not found");
+
+            var bank = new Bank
+            {
+                Id = Guid.NewGuid(),
+                Name = command.Name,
+                CompanyId = command.CompanyId,
+                AccountNumber = command.AccountNumber,
+                IBAN = command.IBAN,
+                SWIFT = command.SWIFT,
+                AccountHolderName = command.AccountHolderName,
+                AccountType = command.AccountType,
+                BankAddress = command.BankAddress,
+                PaymentReference = command.PaymentReference
+            };
+
+            await _bankRepository.AddAsync(bank);
+            await _unitOfWork.CompleteAsync();
+
+            return bank;
         }
     }
 }

@@ -27,5 +27,9 @@ namespace ModulyBack.Moduly.Application.Internal.QueryServices
         {
             return await _invoiceRepository.FindByIssuerIdAsync(query.IssuerId);
         }
+        public async Task<IEnumerable<Invoice>> Handle(GetInvoicesByModuleQuery query)
+        {
+            return await _invoiceRepository.FindByModuleIdAsync(query.ModuleId);
+        }
     }
 }

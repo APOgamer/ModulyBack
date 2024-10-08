@@ -12,7 +12,9 @@ public class CompanyRepository : BaseRepository<Company>, ICompanyRepository
 
     public async Task<Company> FindByIdAsync(Guid id)
     {
-        return await Context.Set<Company>().FindAsync(id);
+        return await Context.Set<Company>()
+            .Include(c => c.Banks)
+            .FirstOrDefaultAsync(c => c.Id == id);
     }
 
     public async Task<IEnumerable<Company>> GetAllAsync()

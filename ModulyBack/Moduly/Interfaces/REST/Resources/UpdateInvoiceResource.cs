@@ -10,4 +10,7 @@ public class UpdateInvoiceResource
     public decimal TotalPayment => Quantity * UnitPrice;
     public string Status { get; set; }
     public Guid UserCompanyId { get; set; }
+    public decimal? ExchangeRate { get; set; }
+    public DateTime? DiscountDate { get; set; }
+    public decimal? TCEA { get; set; }
 }
