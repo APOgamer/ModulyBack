@@ -130,16 +130,9 @@ public class PermissionAssignmentController : ControllerBase
                 return NotFound("Company not found.");
             }
 
-            // Verificar si el usuario es miembro de la compañía
-            var userCompanyId = await _userCompanyQueryService.FindUserCompanyIdByUserId(resource.UserId);
-            if (!userCompanyId.HasValue || userCompanyId.Value != command.CompanyId)
-            {
-                return Forbid("User is not associated with the company.");
-            }
-
             // Crear el nuevo tipo de permiso
             var result = await _permissionTypeCommandService.Handle(command);
-            return Ok(result);
+            return Ok();
         }
         catch (Exception ex)
         {
