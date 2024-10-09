@@ -52,11 +52,13 @@ public class InvitationCommandService : IInvitationCommandService
         }
 
         invitation.UpdateStatus(command.Status);
+        await _invitationRepository.UpdateAsync(invitation);
 
         if (command.Status == "Accepted")
         {
             var userCompany = new UserCompany
             {
+                Id = Guid.NewGuid(),
                 UserId = invitation.UserId,
                 CompanyId = invitation.CompanyId,
                 Role = "Employee", // You might want to define this role somewhere else
@@ -66,10 +68,11 @@ public class InvitationCommandService : IInvitationCommandService
         }
         else if (command.Status == "Rejected")
         {
-            await _invitationRepository.RemoveAsync(invitation);
+            _invitationRepository.Remove(invitation);
             return invitation; // Return the invitation before it's removed from the database
         }
 
-        return await _invitationRepository.UpdateAsync(invitation);
+        await _invitationRepository.UpdateAsync(invitation);
+        return invitation;
     }
 }

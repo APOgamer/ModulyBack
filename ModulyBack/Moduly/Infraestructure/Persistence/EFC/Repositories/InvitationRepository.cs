@@ -30,8 +30,17 @@ public class InvitationRepository : BaseRepository<Invitation>, IInvitationRepos
 
     public async Task<Invitation> UpdateAsync(Invitation invitation)
     {
-        _context.Invitations.Update(invitation);
-        await _context.SaveChangesAsync();
+        try
+        {
+            _context.Invitations.Update(invitation);
+            await _context.SaveChangesAsync();
+            Console.WriteLine($"Invitation {invitation.Id} updated to status {invitation.Status}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating invitation {invitation.Id}: {ex.Message}");
+            throw;
+        }
         return invitation;
     }
 
