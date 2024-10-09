@@ -146,7 +146,7 @@ builder.Services.AddScoped<IPermissionTypeCommandService, PermissionTypeCommandS
 builder.Services.AddScoped<IBeingCommandService, BeingCommandService>();
 builder.Services.AddScoped<IInventoryCommandService, InventoryCommandService>();
 
-builder.Services.AddScoped<IInventoryQueryService, InventoryQueryService>();
+builder.Services.AddScoped<IInvitationQueryService, InvitationQueryService>();
 builder.Services.AddScoped<IUserCompanyPermissionsQueryService, UserCompanyPermissionsQueryService>();
 builder.Services.AddScoped<IPermissionTypeQueryService, PermissionTypeQueryService>();
 builder.Services.AddScoped<IUserQueryServices, UserQueryService>();
