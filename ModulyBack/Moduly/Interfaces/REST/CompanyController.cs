@@ -152,43 +152,45 @@ public class CompanyController : ControllerBase
         }
     }
     [HttpPost("invitations")]
-    public async Task<IActionResult> CreateInvitation([FromBody] CreateInvitationResource createInvitationResource)
+public async Task<IActionResult> CreateInvitation([FromBody] CreateInvitationResource createInvitationResource)
+{
+    try
     {
         var createInvitationCommand = CreateInvitationCommandFromResourceAssembler.ToCommandFromResource(createInvitationResource);
 
-        try
+        var company = await _companyQueryService.Handle(new GetCompanyByIdQuery(createInvitationCommand.CompanyId));
+        if (company == null)
         {
-            // Verificar si el usuario es el creador de la compañía o tiene permisos
-            var company = await _companyQueryService.Handle(new GetCompanyByIdQuery(createInvitationCommand.CompanyId));
-            if (company == null)
-            {
-                return NotFound($"Company with ID {createInvitationCommand.CompanyId} not found.");
-            }
-
-            if (company.CreatedById != createInvitationCommand.TransmitterId)
-            {
-                // Verificar permisos si no es el creador
-                var hasPermission = await _companyQueryService.Handle(new CheckUserPermissionQuery(
-                    createInvitationCommand.TransmitterId, 
-                    createInvitationCommand.CompanyId, 
-                    AllowedActionEnum.SEND_INVITATIONS));
-
-                if (!hasPermission)
-                {
-                    return Forbid("User does not have permission to send invitations for this company.");
-                }
-            }
-
-            var createdInvitation = await _invitationCommandService.Handle(createInvitationCommand);
-            var invitationResource = InvitationResourceFromEntityAssembler.ToResourceFromEntity(createdInvitation);
-            return CreatedAtAction(nameof(GetInvitationById), new { id = invitationResource.Id }, invitationResource);
+            return NotFound($"Company with ID {createInvitationCommand.CompanyId} not found.");
         }
-        catch (Exception ex)
+
+        if (company.CreatedById != createInvitationCommand.TransmitterId)
         {
-            // Log the exception
-            return StatusCode(500, $"An error occurred while creating the invitation: {ex.Message}");
+            var hasPermission = await _companyQueryService.Handle(new CheckUserPermissionQuery(
+                createInvitationCommand.TransmitterId, 
+                createInvitationCommand.CompanyId, 
+                AllowedActionEnum.SEND_INVITATIONS));
+
+            if (!hasPermission)
+            {
+                return Forbid("User does not have permission to send invitations for this company.");
+            }
         }
+
+        var createdInvitation = await _invitationCommandService.Handle(createInvitationCommand);
+        var invitationResource = InvitationResourceFromEntityAssembler.ToResourceFromEntity(createdInvitation);
+        
+        return CreatedAtAction(nameof(GetInvitationById), new { id = invitationResource.Id }, invitationResource);
     }
+    catch (InvalidOperationException ex)
+    {
+        return BadRequest(ex.Message);
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, "An internal server error occurred while creating the invitation");
+    }
+}
     [HttpPut("invitations/{id}/status")]
     public async Task<IActionResult> UpdateInvitationStatus(Guid id, [FromBody] UpdateInvitationStatusResource updateStatusResource)
     {

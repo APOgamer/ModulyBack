@@ -19,15 +19,28 @@ public class InvitationCommandService : IInvitationCommandService
 
     public async Task<Invitation> Handle(CreateInvitationCommand command)
     {
+        if (command == null)
+            throw new ArgumentNullException(nameof(command));
+        
         var invitation = new Invitation
         {
+            Id = Guid.NewGuid(), // Explicitly set the Id
             UserId = command.UserId,
             TransmitterId = command.TransmitterId,
             CompanyId = command.CompanyId,
             Status = "Sent"
         };
 
-        return await _invitationRepository.AddAsync(invitation);
+        try
+        {
+             await _invitationRepository.AddAsync(invitation);
+            return invitation;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception details here
+            throw new Exception("Failed to create invitation", ex);
+        }
     }
 
     public async Task<Invitation> Handle(UpdateInvitationStatusCommand command)

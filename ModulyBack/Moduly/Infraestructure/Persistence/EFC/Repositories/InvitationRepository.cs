@@ -15,6 +15,9 @@ public class InvitationRepository : BaseRepository<Invitation>, IInvitationRepos
 
     public async Task<Invitation> AddAsync(Invitation invitation)
     {
+        if (invitation == null)
+            throw new ArgumentNullException(nameof(invitation));
+        
         await _context.Invitations.AddAsync(invitation);
         await _context.SaveChangesAsync();
         return invitation;
