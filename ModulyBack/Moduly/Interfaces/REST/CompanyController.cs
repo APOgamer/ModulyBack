@@ -229,4 +229,43 @@ public class CompanyController : ControllerBase
         var invitationResource = InvitationResourceFromEntityAssembler.ToResourceFromEntity(invitation);
         return Ok(invitationResource);
     }
+    [HttpGet("invitations/pending/{userId}")]
+    public async Task<IActionResult> GetPendingInvitations(Guid userId)
+    {
+        try
+        {
+            var query = new GetPendingInvitationsQuery(userId);
+            var pendingInvitations = await _invitationQueryService.Handle(query);
+
+            if (!pendingInvitations.Any())
+                return NotFound();
+
+            var invitationResources = pendingInvitations.Select(InvitationResourceFromEntityAssembler.ToResourceFromEntity);
+            return Ok(invitationResources);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return StatusCode(500, $"An error occurred while processing your request: {ex.Message}");
+        }
+    }
+
+    [HttpGet("invitations/sent/{transmitterId}")]
+    public async Task<IActionResult> GetSentInvitations(Guid transmitterId)
+    {
+        try
+        {
+            var query = new GetSentInvitationsQuery(transmitterId);
+            var sentInvitations = await _invitationQueryService.Handle(query);
+
+            if (!sentInvitations.Any())
+                return NotFound();
+
+            var invitationResources = sentInvitations.Select(InvitationResourceFromEntityAssembler.ToResourceFromEntity);
+            return Ok(invitationResources);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return StatusCode(500, $"An error occurred while processing your request: {ex.Message}");
+        }
+    }
 }

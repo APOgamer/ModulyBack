@@ -9,4 +9,6 @@ public interface IInvitationRepository : IBaseRepository<Invitation>
     Task<Invitation> FindByIdAsync(Guid id);
     Task<Invitation> UpdateAsync(Invitation invitation);
     Task RemoveAsync(Invitation invitation);
+    Task<IEnumerable<Invitation>> FindPendingByUserIdAsync(Guid userId);
+    Task<IEnumerable<Invitation>> FindSentByTransmitterIdAsync(Guid transmitterId);
 }

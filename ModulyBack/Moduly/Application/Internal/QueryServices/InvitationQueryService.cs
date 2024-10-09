@@ -18,4 +18,14 @@ public class InvitationQueryService : IInvitationQueryService
     {
         return await _invitationRepository.FindByIdAsync(query.Id);
     }
+    
+    public async Task<IEnumerable<Invitation>> Handle(GetPendingInvitationsQuery query)
+    {
+        return await _invitationRepository.FindPendingByUserIdAsync(query.UserId);
+    }
+
+    public async Task<IEnumerable<Invitation>> Handle(GetSentInvitationsQuery query)
+    {
+        return await _invitationRepository.FindSentByTransmitterIdAsync(query.TransmitterId);
+    }
 }
