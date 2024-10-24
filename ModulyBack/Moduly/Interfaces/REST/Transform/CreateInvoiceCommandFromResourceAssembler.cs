@@ -23,7 +23,8 @@ public static class CreateInvoiceCommandFromResourceAssembler
             resource.UserId,
             resource.ExchangeRate,
             resource.DiscountDate,
-            resource.TCEA
+            resource.TCEA,
+            resource.BankId
         );
     }
 }

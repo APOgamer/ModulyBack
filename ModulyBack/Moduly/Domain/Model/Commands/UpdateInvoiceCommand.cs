@@ -15,6 +15,7 @@ public record UpdateInvoiceCommand(
     Guid UserCompanyId,
     decimal? exchangeRate = null,
     DateTime? discountDate = null,
-    decimal? tcea = null
+    decimal? tcea = null,
+    Guid? BankId = null
 );
 

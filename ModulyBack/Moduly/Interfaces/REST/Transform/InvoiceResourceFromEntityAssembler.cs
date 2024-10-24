@@ -23,7 +23,8 @@ namespace ModulyBack.Moduly.Interfaces.REST.Transform
                 Currency = invoice.Currency, // Nuevo campo
                 ExchangeRate = invoice.ExchangeRate, // Nuevo campo
                 DiscountDate = invoice.DiscountDate, // Nuevo campo
-                TCEA = invoice.TCEA // Nuevo campo
+                TCEA = invoice.TCEA, // Nuevo campo
+                BankId = invoice.BankId,
             };
         }
     }

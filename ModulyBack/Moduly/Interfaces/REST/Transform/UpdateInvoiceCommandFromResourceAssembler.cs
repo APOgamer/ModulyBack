@@ -29,7 +29,9 @@ public static class UpdateInvoiceCommandFromResourceAssembler
             resource.UserCompanyId,
             resource.ExchangeRate,
             resource.DiscountDate,
-            resource.TCEA
+            resource.TCEA,
+            resource.BankId
+            
         );
     }
 }

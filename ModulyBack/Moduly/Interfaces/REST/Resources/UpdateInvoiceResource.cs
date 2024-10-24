@@ -13,4 +13,5 @@ public class UpdateInvoiceResource
     public decimal? ExchangeRate { get; set; }
     public DateTime? DiscountDate { get; set; }
     public decimal? TCEA { get; set; }
+    public Guid? BankId { get; set; }
 }

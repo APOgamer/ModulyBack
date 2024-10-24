@@ -24,5 +24,7 @@ namespace ModulyBack.Moduly.Domain.Model.Entities
 
         // Navegación a la compañía
         public Company Company { get; set; }
+        
+        public Guid? BankId { get; set; }
     }
 }

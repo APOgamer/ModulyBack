@@ -119,6 +119,7 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
                     .WithOne(p => p.Invoice)
                     .HasForeignKey(p => p.InvoiceId)
                     .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(i => i.Bank);
             });
 
             // Payment Entity

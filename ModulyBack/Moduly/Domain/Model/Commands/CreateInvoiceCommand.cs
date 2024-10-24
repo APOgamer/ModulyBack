@@ -14,4 +14,5 @@ public record CreateInvoiceCommand(
     Guid UserId,
     decimal? exchangeRate = null,
     DateTime? discountDate = null,
-    decimal? tcea = null);
+    decimal? tcea = null,
+    Guid? BankId = null);
