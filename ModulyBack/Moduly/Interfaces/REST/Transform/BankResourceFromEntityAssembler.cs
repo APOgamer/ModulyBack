@@ -16,7 +16,8 @@ public static class BankResourceFromEntityAssembler
             bank.AccountHolderName,
             bank.AccountType,
             bank.BankAddress,
-            bank.PaymentReference
+            bank.PaymentReference,
+            bank.TCEApreferredRate
         );
     }
 }

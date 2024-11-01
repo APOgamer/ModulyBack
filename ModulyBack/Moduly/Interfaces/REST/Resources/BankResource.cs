@@ -8,5 +8,6 @@ public record BankResource(
     string? AccountHolderName,
     string? AccountType,
     string? BankAddress,
-    string? PaymentReference
+    string? PaymentReference,
+    float? TCEApreferredRate
 );
