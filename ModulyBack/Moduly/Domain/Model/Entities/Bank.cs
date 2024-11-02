@@ -21,8 +21,12 @@ namespace ModulyBack.Moduly.Domain.Model.Entities
         public string? AccountType { get; set; }
         public string? BankAddress { get; set; }
         public string? PaymentReference { get; set; }
+        
+        public float? TCEApreferredRate { get; set; }
 
         // Navegación a la compañía
         public Company Company { get; set; }
+        
+        public Guid? BankId { get; set; }
     }
 }

@@ -11,5 +11,7 @@ public interface ICompanyQueryService
     Task<Company?> GetCompanyByIdAsync(Guid companyId);
     Task<IEnumerable<Company>> Handle(GetCompaniesByCreatorIdQuery query);
     Task<IEnumerable<UserCompany>> Handle(GetEmployeesByCompanyIdQuery query);
+    Task<bool> Handle(CheckUserPermissionQuery query);
+
 
 }

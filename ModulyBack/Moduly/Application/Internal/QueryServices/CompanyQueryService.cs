@@ -9,15 +9,32 @@ public class CompanyQueryService : ICompanyQueryService
 {
     private readonly ICompanyRepository _companyRepository;
     private readonly IUserCompanyRepository _userCompanyRepository;
+    private readonly IUserCompanyPermissionRepository _userCompanyPermissionRepository;
 
-    public CompanyQueryService(ICompanyRepository companyRepository, IUserCompanyRepository userCompanyRepository
-    )
+    public CompanyQueryService(
+        ICompanyRepository companyRepository, 
+        IUserCompanyRepository userCompanyRepository,
+        IUserCompanyPermissionRepository userCompanyPermissionRepository)
     {
         _companyRepository = companyRepository;
         _userCompanyRepository = userCompanyRepository;
-
+        _userCompanyPermissionRepository = userCompanyPermissionRepository;
     }
+    public async Task<bool> Handle(CheckUserPermissionQuery query)
+    {
 
+        var userCompany = await _userCompanyRepository.FindByUserAndCompanyAsync(query.UserId, query.CompanyId);
+
+        if (userCompany == null)
+        {
+            return false;
+        }
+
+        var userPermission = await _userCompanyPermissionRepository
+            .FindByUserCompanyAndPermissionTypeAsync(userCompany.Id, query.PermissionType);
+
+        return userPermission != null;
+    }
     public async Task<Company> Handle(GetCompanyByIdQuery query)
     {
         return await _companyRepository.FindByIdAsync(query.Id);

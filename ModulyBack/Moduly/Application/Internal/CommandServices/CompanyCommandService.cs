@@ -172,7 +172,8 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
                 AccountHolderName = command.AccountHolderName,
                 AccountType = command.AccountType,
                 BankAddress = command.BankAddress,
-                PaymentReference = command.PaymentReference
+                PaymentReference = command.PaymentReference,
+                TCEApreferredRate= command.TCEApreferredRate
             };
 
             await _bankRepository.AddAsync(bank);

@@ -17,5 +17,6 @@
         public decimal? ExchangeRate { get; set; } // Nuevo campo
         public DateTime? DiscountDate { get; set; } // Nuevo campo
         public decimal? TCEA { get; set; } // Nuevo campo
+        public Guid? BankId { get; set; }
     }
 }

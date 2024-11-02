@@ -12,7 +12,8 @@ public static class CreatePermissionTypeCommandFromResourceAssembler
             Name = resource.Name,
             Description = resource.Description,
             CompanyId = resource.CompanyId,
-            AllowedActions = resource.AllowedActions
+            AllowedActions = resource.AllowedActions,
+            UserId = resource.UserId
         };
     }
 }

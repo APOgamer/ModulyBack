@@ -50,5 +50,9 @@ namespace ModulyBack.Moduly.Domain.Model.Entities
         public decimal? TCEA { get; set; } // Tasa de Coste Efectivo Anual (TCEA), calculada
 
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        
+        public Guid? BankId { get; set; }
+        
+        public Bank? Bank { get; set; }
     }
 }

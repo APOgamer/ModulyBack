@@ -7,5 +7,6 @@ public record CreateBankCommand(
     string? AccountHolderName = null,
     string? AccountType = null,
     string? BankAddress = null,
-    string? PaymentReference = null
+    string? PaymentReference = null,
+    float? TCEApreferredRate = null
 );

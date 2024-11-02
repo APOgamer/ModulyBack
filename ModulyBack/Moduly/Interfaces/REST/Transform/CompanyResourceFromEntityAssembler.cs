@@ -26,7 +26,8 @@ public static class CompanyResourceFromEntityAssembler
                 b.AccountHolderName,
                 b.AccountType,
                 b.BankAddress,
-                b.PaymentReference
+                b.PaymentReference,
+                b.TCEApreferredRate
             )).ToList() // Convertimos la selección a una lista
         };
     }

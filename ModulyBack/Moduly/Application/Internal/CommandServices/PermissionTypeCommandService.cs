@@ -16,23 +16,32 @@ public class PermissionTypeCommandService : IPermissionTypeCommandService
 
     public async Task<PermissionType> Handle(CreatePermissionTypeCommand command)
     {
+        // Inicializar el PermissionType sin las PermissionTypeActions todavía
         var permissionType = new PermissionType
         {
             Id = Guid.NewGuid(),
             Name = command.Name,
             Description = command.Description,
             CompanyId = command.CompanyId,
-            PermissionTypeActions = command.AllowedActions
-                .Select(action => new PermissionTypeAction
-                {
-                    Id = Guid.NewGuid(),
-                    AllowedAction = action
-                }).ToList()
+            PermissionTypeActions = new List<PermissionTypeAction>() // Inicializar como lista vacía
         };
 
+        // Ahora puedes asignar los PermissionTypeActions con el PermissionTypeId correcto
+        permissionType.PermissionTypeActions = command.AllowedActions
+            .Select(action => new PermissionTypeAction
+            {
+                Id = Guid.NewGuid(),
+                PermissionTypeId = permissionType.Id, // Ahora PermissionTypeId ya existe
+                AllowedAction = action
+            }).ToList();
+
+        // Guardar el PermissionType en la base de datos
         await _permissionTypeRepository.AddAsync(permissionType);
+
         return permissionType;
     }
+
+
     public async Task<IEnumerable<PermissionType>> GetPermissionTypesByCompanyId(Guid companyId)
     {
         return await _permissionTypeRepository.GetPermissionTypesByCompanyId(companyId);

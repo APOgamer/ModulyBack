@@ -30,6 +30,7 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
         public DbSet<InventoryItem> InventoryItems { get; set; }
 
         public DbSet<Bank> Banks { get; set; }
+        public DbSet<Invitation> Invitations { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
@@ -118,6 +119,7 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
                     .WithOne(p => p.Invoice)
                     .HasForeignKey(p => p.InvoiceId)
                     .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(i => i.Bank);
             });
 
             // Payment Entity
@@ -223,6 +225,29 @@ namespace ModulyBack.Shared.Infraestructure.Persistences.EFC.Configuration
                 entity.HasOne(b => b.Company)
                     .WithMany(c => c.Banks)
                     .HasForeignKey(b => b.CompanyId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+            
+            // Invitation Entity
+            builder.Entity<Invitation>(entity =>
+            {
+                entity.HasKey(i => i.Id);
+
+                // Defining relationships with User (UserId) and Transmitter (TransmitterId)
+                entity.HasOne(i => i.User)
+                    .WithMany() // or define a navigation property in the User class
+                    .HasForeignKey(i => i.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(i => i.Transmitter)
+                    .WithMany() // or define a navigation property in the User class
+                    .HasForeignKey(i => i.TransmitterId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Defining relationship with Company
+                entity.HasOne(i => i.Company)
+                    .WithMany() // or define a navigation property in the Company class
+                    .HasForeignKey(i => i.CompanyId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using ModulyBack.Moduly.Domain.Model.Entities;
 
 namespace ModulyBack.Moduly.Interfaces.REST.Resources;
 
@@ -39,4 +40,7 @@ public class CreateInvoiceResource
 
     [Range(0, double.MaxValue, ErrorMessage = "TCEA must be a non-negative value.")]
     public decimal TCEA { get; set; }
+    
+    public Guid? BankId { get; set; }
+    
 }

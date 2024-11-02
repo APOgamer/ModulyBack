@@ -73,7 +73,8 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
                 Status = command.Status,
                 ExchangeRate = command.exchangeRate,
                 DiscountDate = command.discountDate,
-                TCEA = command.tcea
+                TCEA = command.tcea,
+                BankId = command.BankId,
             };
 
             await _invoiceRepository.AddAsync(invoice);
@@ -107,6 +108,7 @@ namespace ModulyBack.Moduly.Application.Internal.CommandServices
             existingInvoice.ExchangeRate = command.exchangeRate;
             existingInvoice.DiscountDate = command.discountDate;
             existingInvoice.TCEA = command.tcea;
+            existingInvoice.BankId = command.BankId;
 
             await _invoiceRepository.UpdateAsync(existingInvoice);
             await _unitOfWork.CompleteAsync();
