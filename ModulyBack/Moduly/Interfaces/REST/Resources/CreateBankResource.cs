@@ -8,4 +8,6 @@ public class CreateBankResource
     public string? AccountType { get; set; }
     public string? BankAddress { get; set; }
     public string? PaymentReference { get; set; }
+    public float? TCEApreferredRate {get;set;}
+
 }

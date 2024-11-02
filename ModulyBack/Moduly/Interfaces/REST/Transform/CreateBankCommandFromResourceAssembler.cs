@@ -16,7 +16,8 @@ public static class CreateBankCommandFromResourceAssembler
             AccountHolderName: resource.AccountHolderName,
             AccountType: resource.AccountType,
             BankAddress: resource.BankAddress,
-            PaymentReference: resource.PaymentReference
+            PaymentReference: resource.PaymentReference,
+            TCEApreferredRate: resource.TCEApreferredRate
         );
     }
 }
